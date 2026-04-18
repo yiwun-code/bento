@@ -2082,10 +2082,12 @@ async function renderOrders(){
   _lastFiltered=filtered;
   const list=document.getElementById('orders-list');
   if(!filtered.length){list.innerHTML='<div class="empty">目前沒有訂單</div>';return;}
+  const futureOrds=filtered.filter(o=>o.date>today);
   const todayOrds=filtered.filter(o=>o.date===today);
-  const pastOrds=filtered.filter(o=>o.date!==today);
-  if(!todayOrds.length&&!pastOrds.length){list.innerHTML='<div class="empty">目前沒有訂單</div>';return;}
-  list.innerHTML=(todayOrds.length?todayOrds.map(o=>renderOrderCard(o)).join(''):'<div class="empty">今日尚無訂單</div>')+
+  const pastOrds=filtered.filter(o=>o.date<today);
+  if(!futureOrds.length&&!todayOrds.length&&!pastOrds.length){list.innerHTML='<div class="empty">目前沒有訂單</div>';return;}
+  list.innerHTML=(futureOrds.length?futureOrds.map(o=>renderOrderCard(o)).join(''):'')+
+    (todayOrds.length?todayOrds.map(o=>renderOrderCard(o)).join(''):'<div class="empty">今日尚無訂單</div>')+
     (pastOrds.length?`<div id="show-more-row" style="text-align:center;padding:16px 0"><button onclick="showAllOrders()" style="background:transparent;border:1.5px solid #3B6D11;color:#3B6D11;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">顯示過去訂單（${pastOrds.length} 筆）</button></div>`:'');
 }
 function showAllOrders(){
@@ -2093,7 +2095,7 @@ function showAllOrders(){
   const row=document.getElementById('show-more-row');
   if(row) row.remove();
   const today=new Date().toISOString().slice(0,10);
-  list.insertAdjacentHTML('beforeend',_lastFiltered.filter(o=>o.date!==today).map(o=>renderOrderCard(o)).join(''));
+  list.insertAdjacentHTML('beforeend',_lastFiltered.filter(o=>o.date<today).map(o=>renderOrderCard(o)).join(''));
 }
 
 function renderOrderCard(o){
