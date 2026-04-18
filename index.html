@@ -450,7 +450,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
     <div class="form-group">
       <label>新密碼</label>
       <div style="position:relative">
-        <input id="new-pw" type="password" placeholder="輸入新密碼（至少6位）" style="width:100%;padding:12px 40px 12px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;font-size:16px;font-family:inherit">
+        <input id="new-pw" type="password" placeholder="輸入新密碼（至少8位）" style="width:100%;padding:12px 40px 12px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;font-size:16px;font-family:inherit">
         <button onclick="togglePwVis('new-pw',this)" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888780">👁</button>
       </div>
     </div>
@@ -1888,7 +1888,7 @@ async function renderRevenue(){
     locBox.innerHTML=locEntries.map(([loc,d])=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.07)">
         <div>
-          <div style="font-size:13px;font-weight:600;color:#2C2C2A">📍 ${d.fullName}</div>
+          <div style="font-size:13px;font-weight:600;color:#2C2C2A">📍 ${escapeHtml(d.fullName)}</div>
           <div style="font-size:12px;color:#888780;margin-top:2px">${d.orders} 筆訂單　${d.qty} 個便當</div>
         </div>
         <div style="font-size:15px;font-weight:700;color:#3B6D11">$${d.rev.toLocaleString()}</div>
@@ -1984,7 +1984,7 @@ async function doChangePw(){
   const pw=document.getElementById('new-pw').value;
   const pw2=document.getElementById('new-pw-confirm').value;
   const err=document.getElementById('change-pw-err');
-  if(pw.length<6){err.textContent='密碼至少需要 6 位';return;}
+  if(pw.length<8){err.textContent='密碼至少需要 8 位';return;}
   if(pw!==pw2){err.textContent='兩次輸入的密碼不一致';return;}
   err.textContent='儲存中...';
   const {error}=await _sb.auth.updateUser({password:pw});
@@ -2099,7 +2099,7 @@ async function renderOrders(){
     const totalBento=active.reduce((s,o)=>s+(o.items||[]).reduce((ss,i)=>ss+i.qty,0),0);
     summary.style.display='block';
     summary.innerHTML=`<div style="background:#EAF3DE;border:1px solid rgba(59,109,17,0.2);border-radius:12px;padding:14px 16px;margin-bottom:8px">
-      <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:10px">📦 備餐摘要 — ${locFilter}</div>
+      <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:10px">📦 備餐摘要 — ${escapeHtml(locFilter)}</div>
       ${active.map(o=>{
         const qty=(o.items||[]).reduce((s,i)=>s+i.qty,0);
         const pay=o.payMethod==='linepay'?'LINE Pay':'現場付款';
@@ -2129,7 +2129,7 @@ async function renderOrders(){
       const totalRev=locOrders.reduce((s,o)=>s+o.total,0);
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(59,109,17,0.12)">
         <div>
-          <div style="font-size:13px;font-weight:600;color:#2C2C2A">📍 ${locKey}</div>
+          <div style="font-size:13px;font-weight:600;color:#2C2C2A">📍 ${escapeHtml(locKey)}</div>
           <div style="font-size:12px;color:#5F5E5A;margin-top:2px">${locOrders.length} 人　${totalBento} 個便當</div>
         </div>
         <div style="font-size:14px;font-weight:700;color:#3B6D11">$${totalRev}</div>
