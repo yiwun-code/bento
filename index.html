@@ -1840,10 +1840,19 @@ async function renderRevenue(){
   } else {
     if(itemsCanvas)itemsCanvas.style.display='block';
     if(itemsEmpty)itemsEmpty.style.display='none';
+    function _shortItemName(n){
+      if(n.includes('墨西哥脆餅')){
+        const m=n.match(/[（(](.+?)[）)]/);
+        const flavor=m?m[1].replace('起司','').slice(0,5):'';
+        return flavor?`脆餅(${flavor})`:'脆餅';
+      }
+      return n.length>8?n.slice(0,8)+'…':n;
+    }
+    itemsCanvas.style.height=(topItems.length*52+40)+'px';
     chartItems=new Chart(itemsCanvas,{
       type:'bar',
       data:{
-        labels:topItems.map(([n])=>n),
+        labels:topItems.map(([n])=>_shortItemName(n)),
         datasets:[{
           label:'銷售份數',
           data:topItems.map(([,v])=>v.qty),
@@ -1855,23 +1864,17 @@ async function renderRevenue(){
       options:{
         indexAxis:'y',
         responsive:true,
+        maintainAspectRatio:false,
         plugins:{
           legend:{display:false},
           tooltip:{callbacks:{
+            title:items=>[topItems[items[0].dataIndex][0]],
             label:ctx=>`${ctx.raw} 份　$${topItems[ctx.dataIndex][1].rev.toLocaleString()}`
           }}
         },
         scales:{
           x:{ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'},title:{display:true,text:'份數',font:{size:11}}},
-          y:{grid:{display:false},ticks:{font:{size:12},callback:(val,idx)=>{
-            const l=topItems[idx][0];
-            if(l.includes('墨西哥脆餅')){
-              const m=l.match(/[（(](.+?)[）)]/);
-              const flavor=m?m[1].replace('起司','').slice(0,5):'';
-              return flavor?`脆餅(${flavor})`:'脆餅';
-            }
-            return l.length>8?l.slice(0,8)+'…':l;
-          }}}
+          y:{grid:{display:false},ticks:{font:{size:12}}}
         }
       }
     });
