@@ -589,32 +589,32 @@ async function init(){
 
 
 const DEFAULT_LOCATIONS=[
-  {area:'中和',name:'遠東世紀廣場'},
-  {area:'內湖',name:'國防醫學大學'},
-  {area:'南港',name:'國家生技園區'},
-  {area:'大安',name:'聯合醫院（仁愛園區）'},
-  {area:'大安',name:'中華電信（愛國園區）'},
+  {area:'中和',name:'遠東世紀廣場',active:true},
+  {area:'內湖',name:'國防醫學大學',active:true},
+  {area:'南港',name:'國家生技園區',active:true},
+  {area:'大安',name:'聯合醫院（仁愛園區）',active:true},
+  {area:'大安',name:'中華電信（愛國園區）',active:true},
 ];
 function getLocations(){
-  const saved=localStorage.getItem('bento_locations');
-  if(!saved)return DEFAULT_LOCATIONS;
-  const savedLocs=JSON.parse(saved);
-  // 補上 DEFAULT_LOCATIONS 裡有但 localStorage 沒有的地點
-  DEFAULT_LOCATIONS.forEach(def=>{
-    const key=def.area+' '+def.name;
-    if(!savedLocs.find(l=>l.area+' '+l.name===key)){
-      savedLocs.push(def);
+  try{
+    const saved=localStorage.getItem('bento_locations');
+    if(saved){
+      const locs=JSON.parse(saved);
+      // 格式化：統一為 {area, name, active}，沒有 active 欄位時預設 true
+      return locs.map(l=>({area:l.area,name:l.name,active:l.active===false?false:true}));
     }
-  });
-  return savedLocs;
+  }catch(e){}
+  // 雲端無資料或讀取失敗，使用預設值
+  return DEFAULT_LOCATIONS.map(l=>({...l}));
 }
 function saveLocations(locs){localStorage.setItem('bento_locations',JSON.stringify(locs));sbUpsertSetting('locations',locs);}
 
 function buildLocations(){
   const g=document.getElementById('location-group');
+  if(!g)return;
   g.innerHTML='';
   selectedLocation='';
-  getLocations().filter(loc=>loc.active!==false).forEach(loc=>{
+  getLocations().filter(loc=>loc.active===true).forEach(loc=>{
     const label=`${loc.area} ${loc.name}`;
     const d=document.createElement('div');
     d.className='loc-btn';
