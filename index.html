@@ -546,7 +546,8 @@ const DEFAULT_MENU=[
 function getMenu(){
   const saved=localStorage.getItem('bento_menu');
   const menu=saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_MENU));
-  menu.forEach(item=>{if(!item.type)item.type=BENTO_IDS.includes(item.id)?'bento':'sauced';});
+  const bentoIds=['A','B','C','N'];
+  menu.forEach(item=>{if(!item.type)item.type=bentoIds.includes(item.id)?'bento':'sauced';});
   return menu;
 }
 function isSauced(item){return item.type==='sauced';}
