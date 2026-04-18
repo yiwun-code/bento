@@ -565,22 +565,28 @@ async function init(){
   document.getElementById('today-label').textContent=
     new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 
-  // 從 Supabase 載入設定，讀不到就用預設值
+  // 從 Supabase 載入設定，5 秒內讀不到就用預設值繼續
+  const timeout=ms=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));
   try{
-    const [menuData,locData,pricingData,tacoData]=await Promise.all([
-      sbGetSetting('menu'),
-      sbGetSetting('locations'),
-      sbGetSetting('pricing'),
-      sbGetSetting('taco_flavors'),
+    const [menuData,locData,pricingData,tacoData]=await Promise.race([
+      Promise.all([
+        sbGetSetting('menu'),
+        sbGetSetting('locations'),
+        sbGetSetting('pricing'),
+        sbGetSetting('taco_flavors'),
+      ]),
+      timeout(5000)
     ]);
     if(menuData)localStorage.setItem('bento_menu',JSON.stringify(menuData));
     if(locData)localStorage.setItem('bento_locations',JSON.stringify(locData));
     if(pricingData)localStorage.setItem('bento_pricing',JSON.stringify(pricingData));
     if(tacoData!==null)localStorage.setItem('taco_flavors',JSON.stringify(tacoData));
     else localStorage.removeItem('taco_flavors');
-    const pausedData=await sbGetSetting('paused_dates');
-    if(pausedData)localStorage.setItem('bento_paused_dates',JSON.stringify(pausedData));
-    else localStorage.removeItem('bento_paused_dates');
+    try{
+      const pausedData=await Promise.race([sbGetSetting('paused_dates'),timeout(3000)]);
+      if(pausedData)localStorage.setItem('bento_paused_dates',JSON.stringify(pausedData));
+      else localStorage.removeItem('bento_paused_dates');
+    }catch(e){}
   }catch(e){console.log('設定載入失敗，使用預設值');}
   MENU=getMenu();
 
@@ -2055,7 +2061,6 @@ async function renderOrders(){
   _lastFiltered=filtered;
   const list=document.getElementById('orders-list');
   if(!filtered.length){list.innerHTML='<div class="empty">目前沒有訂單</div>';return;}
-  const today=new Date().toISOString().slice(0,10);
   const todayOrds=filtered.filter(o=>o.date===today);
   const pastOrds=filtered.filter(o=>o.date!==today);
   if(!todayOrds.length&&!pastOrds.length){list.innerHTML='<div class="empty">目前沒有訂單</div>';return;}
