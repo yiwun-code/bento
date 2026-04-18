@@ -1863,7 +1863,14 @@ async function renderRevenue(){
         },
         scales:{
           x:{ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'},title:{display:true,text:'份數',font:{size:11}}},
-          y:{grid:{display:false},ticks:{font:{size:12}}}
+          y:{grid:{display:false},ticks:{font:{size:12},callback:(val,idx)=>{
+            const l=topItems[idx][0];
+            if(l.includes('墨西哥脆餅')){
+              const m=l.match(/[（(](.+?)[）)]/);
+              if(m){const flavor=m[1].replace('起司','').slice(0,5);return `脆餅(${flavor})`;}
+            }
+            return l.length>8?l.slice(0,8)+'…':l;
+          }}}
         }
       }
     });
