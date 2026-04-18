@@ -1640,20 +1640,16 @@ let revOffset=0;
 async function _animateRevContent(direction){
   const wrap=document.getElementById('rev-content-wrap');
   if(wrap){
-    wrap.style.transition='opacity 0.12s,transform 0.12s';
+    wrap.style.transition='opacity 0.1s';
     wrap.style.opacity='0';
-    wrap.style.transform=`translateX(${direction==='left'?'-20px':'20px'})`;
-    await new Promise(r=>setTimeout(r,130));
+    await new Promise(r=>setTimeout(r,100));
   }
   await renderRevenue();
   if(wrap){
-    wrap.style.transition='none';
-    wrap.style.transform=`translateX(${direction==='left'?'20px':'-20px'})`;
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      wrap.style.transition='opacity 0.2s,transform 0.2s';
+    requestAnimationFrame(()=>{
+      wrap.style.transition='opacity 0.15s';
       wrap.style.opacity='1';
-      wrap.style.transform='translateX(0)';
-    }));
+    });
   }
 }
 
@@ -1681,8 +1677,8 @@ function initRevSwipe(){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx))return;
-    // 左滑 = 往未來（+1），右滑 = 往過去（-1）
-    navigateRevOffset(dx<0?1:-1);
+    // 左滑 = 往過去（-1），右滑 = 往未來（+1）
+    navigateRevOffset(dx<0?-1:1);
   },{passive:true,capture:true});
 }
 
