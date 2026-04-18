@@ -1923,9 +1923,9 @@ async function renderDash(){
     note:o.note, items:o.items, total:o.total,
     status:o.status, createdAt:o.created_at
   }));
-  const pending=orders.filter(o=>o.status==='new').length;
-  const done=orders.filter(o=>o.status==='ready').length;
   const today=new Date().toISOString().slice(0,10);
+  const pending=orders.filter(o=>o.status==='new'&&o.date===today).length;
+  const done=orders.filter(o=>o.status==='ready'&&o.date===today).length;
   const revenue=orders.filter(o=>o.status!=='cancel'&&o.date===today).reduce((s,o)=>s+o.total,0);
   const isBoss=currentRole==='boss';
 
