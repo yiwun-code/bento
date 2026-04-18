@@ -1400,10 +1400,9 @@ function scrollToMissing(){
 }
 
 async function generateOrderId(){
-  const today=new Date().toISOString().slice(0,10).replace(/-/g,''); // 20260417
-  const {data}=await _sb.from('orders').select('id').like('id','#'+today+'-%');
-  const count=(data||[]).length+1;
-  return '#'+today+'-'+String(count).padStart(3,'0');
+  const {data,error}=await _sb.rpc('generate_order_id');
+  if(error||!data)throw new Error('無法產生訂單編號');
+  return data;
 }
 
 async function submitOrder(){
