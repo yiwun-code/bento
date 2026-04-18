@@ -312,7 +312,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <!-- 熱門品項長條圖 -->
         <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;margin-bottom:16px">
           <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:4px">熱門品項排行</div>
-          <div style="font-size:11px;color:#888780;margin-bottom:12px">依銷售份數（Top 8）</div>
+          <div style="font-size:11px;color:#888780;margin-bottom:12px">依銷售份數（Top 4）</div>
           <canvas id="chart-items"></canvas>
           <div id="rev-items-empty" style="display:none;text-align:center;padding:32px;font-size:13px;color:#888780">此區間無訂單資料</div>
         </div>
@@ -1828,7 +1828,7 @@ async function renderRevenue(){
     itemCount[i.name].qty+=i.qty;
     itemCount[i.name].rev+=i.qty*(i.unitPrice||i.origPrice||0);
   }));
-  const topItems=Object.entries(itemCount).sort((a,b)=>b[1].qty-a[1].qty).slice(0,8);
+  const topItems=Object.entries(itemCount).sort((a,b)=>b[1].qty-a[1].qty).slice(0,4);
 
   const itemsEmpty=document.getElementById('rev-items-empty');
   const itemsCanvas=document.getElementById('chart-items');
