@@ -1938,11 +1938,11 @@ async function renderDash(){
   // 老闆才看營收
   const statsEl=document.getElementById('stats-row');
   statsEl.innerHTML=isBoss
-    ?`<div class="stat-card"><div class="stat-val">${pending}</div><div class="stat-lbl">待處理</div></div>
-      <div class="stat-card"><div class="stat-val">${done}</div><div class="stat-lbl">已備餐</div></div>
+    ?`<div class="stat-card"><div class="stat-val">${pending}</div><div class="stat-lbl">今日待處理</div></div>
+      <div class="stat-card"><div class="stat-val">${done}</div><div class="stat-lbl">今日已備餐</div></div>
       <div class="stat-card"><div class="stat-val">$${revenue}</div><div class="stat-lbl">今日營收</div></div>`
-    :`<div class="stat-card"><div class="stat-val">${pending}</div><div class="stat-lbl">待處理</div></div>
-      <div class="stat-card"><div class="stat-val">${done}</div><div class="stat-lbl">已備餐</div></div>`;
+    :`<div class="stat-card"><div class="stat-val">${pending}</div><div class="stat-lbl">今日待處理</div></div>
+      <div class="stat-card"><div class="stat-val">${done}</div><div class="stat-lbl">今日已備餐</div></div>`;
 
 
 
