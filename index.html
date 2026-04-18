@@ -540,7 +540,7 @@ async function sbUpsertSetting(key,value){
 // 角色對應 email（在 Supabase Auth 建立這兩個帳號）
 // boss email: a0903617197@gmail.com
 // helper email: helper@shengen.farm
-const BOSS_EMAIL='a0903617197@gmail.com';
+let BOSS_EMAIL=''; // 從 Supabase settings 載入
 let currentRole=''; // 'boss' or 'helper'
 const DAYS_AHEAD=7;
 const TIMES=['11:30','12:00','12:30'];
@@ -580,6 +580,12 @@ let _lastFiltered=[];
 async function init(){
   document.getElementById('today-label').textContent=
     new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+
+  // 載入 boss email（不放在 code 裡）
+  try{
+    const bossEmail=await sbGetSetting('boss_email');
+    if(bossEmail)BOSS_EMAIL=bossEmail;
+  }catch(e){}
 
   // 先用 localStorage 快取或預設值立即渲染，使用者不用等 Supabase
   MENU=getMenu();
