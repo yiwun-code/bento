@@ -1681,7 +1681,8 @@ function initRevSwipe(){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx))return;
-    navigateRevOffset(dx<0?-1:1);
+    // 左滑 = 往未來（+1），右滑 = 往過去（-1）
+    navigateRevOffset(dx<0?1:-1);
   },{passive:true,capture:true});
 }
 
