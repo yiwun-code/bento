@@ -565,7 +565,11 @@ async function init(){
   document.getElementById('today-label').textContent=
     new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 
-  // 從 Supabase 載入設定，5 秒內讀不到就用預設值繼續
+  // 先用 localStorage 快取或預設值立即渲染，使用者不用等 Supabase
+  MENU=getMenu();
+  buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
+
+  // 背景從 Supabase 拉最新設定，回來後靜默更新
   const timeout=ms=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));
   try{
     const [menuData,locData,pricingData,tacoData]=await Promise.race([
@@ -587,10 +591,10 @@ async function init(){
       if(pausedData)localStorage.setItem('bento_paused_dates',JSON.stringify(pausedData));
       else localStorage.removeItem('bento_paused_dates');
     }catch(e){}
-  }catch(e){console.log('設定載入失敗，使用預設值');}
-  MENU=getMenu();
-
-  buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
+    // Supabase 回來後用最新資料重新渲染
+    MENU=getMenu();
+    buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
+  }catch(e){console.log('設定載入失敗，使用快取/預設值');};
 }
 
 
