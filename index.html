@@ -653,7 +653,7 @@ function buildLocations(){
     const label=`${loc.area} ${loc.name}`;
     const d=document.createElement('div');
     d.className='loc-btn';
-    d.innerHTML=`<div class="loc-dot"></div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${loc.area}　<span style="font-weight:600;color:#2C2C2A">${loc.name}</span></div>`;
+    d.innerHTML=`<div class="loc-dot"></div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(loc.area)}　<span style="font-weight:600;color:#2C2C2A">${escapeHtml(loc.name)}</span></div>`;
     d.onclick=()=>selectLocation(label,d);
     g.appendChild(d);
   });
@@ -667,7 +667,7 @@ function renderAdminLocations(){
     const isActive=loc.active!==false;
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${isActive?'#fff':'#F5F4F0'};border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:6px;opacity:${isActive?1:0.6}">
       <div>
-        <span style="font-size:14px;font-weight:600;color:${isActive?'#2C2C2A':'#888780'}">${loc.area}　${loc.name}</span>
+        <span style="font-size:14px;font-weight:600;color:${isActive?'#2C2C2A':'#888780'}">${escapeHtml(loc.area)}　${escapeHtml(loc.name)}</span>
         ${!isActive?'<span style="font-size:11px;color:#888780;margin-left:8px;background:#E0DFD9;padding:2px 7px;border-radius:4px">已下架</span>':''}
       </div>
       <div style="display:flex;gap:6px">
@@ -2261,7 +2261,7 @@ async function startEdit(id){
           <option value="linepay"${o.payMethod==='linepay'?'selected':''}>LINE Pay</option>
         </select></div>
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">備註</div>
-        <input id="e-note" value="${o.note||''}" placeholder="選填" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
+        <input id="e-note" value="${escapeHtml(o.note||'')}" placeholder="選填" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
     </div>
     <div style="font-size:12px;color:#5F5E5A;margin-bottom:6px">餐點內容</div>
     <div id="e-items" style="margin-bottom:10px">${renderEditItems(o)}</div>
