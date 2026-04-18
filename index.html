@@ -553,6 +553,7 @@ let MENU=getMenu();
 let cart={};
 let selectedDate=null,selectedTime=null,selectedPay='cash',selectedLocation='';
 let filterState='all';
+let _lastFiltered=[];
 
 async function init(){
   document.getElementById('today-label').textContent=
@@ -2052,9 +2053,19 @@ async function renderOrders(){
     </div>`;
   }
 
+  _lastFiltered=filtered;
   const list=document.getElementById('orders-list');
   if(!filtered.length){list.innerHTML='<div class="empty">目前沒有訂單</div>';return;}
-  list.innerHTML=filtered.map(o=>renderOrderCard(o)).join('');
+  const PAGE=30;
+  const rest=filtered.length-PAGE;
+  list.innerHTML=filtered.slice(0,PAGE).map(o=>renderOrderCard(o)).join('')+
+    (rest>0?`<div id="show-more-row" style="text-align:center;padding:16px 0"><button onclick="showAllOrders()" style="background:transparent;border:1.5px solid #3B6D11;color:#3B6D11;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">顯示全部（還有 ${rest} 筆）</button></div>`:'');
+}
+function showAllOrders(){
+  const list=document.getElementById('orders-list');
+  const row=document.getElementById('show-more-row');
+  if(row) row.remove();
+  list.insertAdjacentHTML('beforeend',_lastFiltered.slice(30).map(o=>renderOrderCard(o)).join(''));
 }
 
 function renderOrderCard(o){
