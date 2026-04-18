@@ -313,7 +313,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;margin-bottom:16px">
           <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:4px">熱門品項排行</div>
           <div style="font-size:11px;color:#888780;margin-bottom:12px">依銷售份數（Top 4）</div>
-          <canvas id="chart-items"></canvas>
+          <div id="chart-items-wrap" style="position:relative"><canvas id="chart-items"></canvas></div>
           <div id="rev-items-empty" style="display:none;text-align:center;padding:32px;font-size:13px;color:#888780">此區間無訂單資料</div>
         </div>
 
@@ -1848,7 +1848,7 @@ async function renderRevenue(){
       }
       return n.length>8?n.slice(0,8)+'…':n;
     }
-    itemsCanvas.style.height=(topItems.length*52+40)+'px';
+    document.getElementById('chart-items-wrap').style.height=(topItems.length*52+40)+'px';
     chartItems=new Chart(itemsCanvas,{
       type:'bar',
       data:{
