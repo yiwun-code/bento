@@ -12,6 +12,7 @@ html{touch-action:manipulation}
 html,body{min-height:100vh;background:#F5F4F0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","PingFang TC",sans-serif;color:#2C2C2A;font-size:16px;line-height:1.5}
 .page{display:none}.page.active{display:block}
 header{background:#3B6D11;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+#admin-sticky-top header{position:relative;z-index:auto}
 header h1{font-size:17px;font-weight:600}
 header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .container{max-width:600px;margin:0 auto;padding:16px 14px 160px}
@@ -227,15 +228,22 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
 <!-- ADMIN -->
 <div id="page-admin" class="page">
-  <header>
-    <div><h1>後台管理</h1></div>
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
-      <button onclick="goFront()" id="nav-to-front" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">↩ 訂餐頁</button>
-      <button style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;display:none;white-space:nowrap" id="btn-change-pw" onclick="showChangePw()">改密碼</button>
-      <span id="btn-role-label" style="display:none;color:rgba(255,255,255,0.85);font-size:12px;white-space:nowrap"></span>
-      <button style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;display:none;white-space:nowrap" id="btn-logout" onclick="logout()">登出</button>
+  <div id="admin-sticky-top" style="position:sticky;top:0;z-index:10">
+    <header>
+      <div><h1>後台管理</h1></div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
+        <button onclick="goFront()" id="nav-to-front" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">↩ 訂餐頁</button>
+        <button style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;display:none;white-space:nowrap" id="btn-change-pw" onclick="showChangePw()">改密碼</button>
+        <span id="btn-role-label" style="display:none;color:rgba(255,255,255,0.85);font-size:12px;white-space:nowrap"></span>
+        <button style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;display:none;white-space:nowrap" id="btn-logout" onclick="logout()">登出</button>
+      </div>
+    </header>
+    <div id="admin-tabs" style="display:none;background:#2D5E0E;padding:0 16px">
+      <button id="tab-orders" onclick="switchTab('orders')" style="padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.12s">訂單管理</button>
+      <button id="tab-settings" onclick="switchTab('settings')" style="padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.12s;display:none" class="boss-tab">設定</button>
+      <button id="tab-revenue" onclick="switchTab('revenue')" style="padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.12s;display:none" class="boss-tab">營業額</button>
     </div>
-  </header>
+  </div>
   <div id="view-login">
     <div class="login-wrap">
       <div class="login-card">
@@ -252,19 +260,12 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
     </div>
   </div>
   <div id="view-dash" style="display:none">
-    <!-- Tab 列 -->
-    <div style="display:flex;background:#2D5E0E;padding:0 16px">
-      <button id="tab-orders" onclick="switchTab('orders')" style="padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.12s">訂單管理</button>
-      <button id="tab-settings" onclick="switchTab('settings')" style="padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.12s;display:none" class="boss-tab">設定</button>
-      <button id="tab-revenue" onclick="switchTab('revenue')" style="padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.12s;display:none" class="boss-tab">營業額</button>
-    </div>
 
     <!-- 訂單管理 tab -->
     <div id="tab-content-orders" class="container" style="padding-bottom:24px">
       <div class="stats-row" id="stats-row"></div>
       <div class="toolbar">
         <h2 style="font-size:15px;font-weight:600">訂單列表</h2>
-        <button style="background:transparent;border:1px solid #FCEBEB;color:#A32D2D;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit" onclick="clearAll()">清除全部</button>
       </div>
       <div style="position:relative;margin-bottom:12px">
         <input id="order-search" type="text" placeholder="搜尋訂單編號、姓名、電話…" oninput="renderOrders()" style="width:100%;padding:10px 36px 10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
@@ -285,39 +286,43 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
     <div id="tab-content-revenue" class="container" style="display:none;padding-bottom:40px">
 
       <!-- 時間區間選擇 -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="rev-period-day" onclick="setRevPeriod('day')" style="padding:7px 16px;border-radius:20px;border:none;background:#3B6D11;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">今日</button>
-          <button id="rev-period-week" onclick="setRevPeriod('week')" style="padding:7px 16px;border-radius:20px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit">本週</button>
-          <button id="rev-period-month" onclick="setRevPeriod('month')" style="padding:7px 16px;border-radius:20px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit">本月</button>
-          <button id="rev-period-year" onclick="setRevPeriod('year')" style="padding:7px 16px;border-radius:20px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit">今年</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="background:#E9E9EA;border-radius:9px;padding:2px;display:flex;flex:1">
+          <button id="rev-period-day" onclick="setRevPeriod('day')" style="flex:1;padding:7px 0;border-radius:7px;border:none;background:#3B6D11;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s,color 0.15s">今日</button>
+          <button id="rev-period-week" onclick="setRevPeriod('week')" style="flex:1;padding:7px 0;border-radius:7px;border:none;background:transparent;color:#3C3C43;font-size:13px;cursor:pointer;font-family:inherit;transition:background 0.15s,color 0.15s">本週</button>
+          <button id="rev-period-month" onclick="setRevPeriod('month')" style="flex:1;padding:7px 0;border-radius:7px;border:none;background:transparent;color:#3C3C43;font-size:13px;cursor:pointer;font-family:inherit;transition:background 0.15s,color 0.15s">本月</button>
+          <button id="rev-period-year" onclick="setRevPeriod('year')" style="flex:1;padding:7px 0;border-radius:7px;border:none;background:transparent;color:#3C3C43;font-size:13px;cursor:pointer;font-family:inherit;transition:background 0.15s,color 0.15s">今年</button>
         </div>
-        <button onclick="exportOrders()" style="padding:7px 16px;border-radius:20px;border:1px solid rgba(59,109,17,0.4);background:#EAF3DE;color:#3B6D11;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">📥 匯出 Excel</button>
+        <button onclick="exportOrders()" style="padding:7px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.15);background:#fff;color:#3B6D11;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">📥 匯出 Excel</button>
       </div>
 
-      <!-- 總覽數字 -->
-      <div id="rev-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px"></div>
+      <div id="rev-content-wrap" style="overflow:hidden">
 
-      <!-- 各地點營業額圖 -->
-      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:4px">各地點營業額</div>
-        <div style="font-size:11px;color:#888780;margin-bottom:12px" id="rev-loc-subtitle"></div>
-        <canvas id="chart-location" height="220"></canvas>
-        <div id="rev-loc-empty" style="display:none;text-align:center;padding:32px;font-size:13px;color:#888780">此區間無訂單資料</div>
-      </div>
+        <!-- 總覽數字 -->
+        <div id="rev-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px"></div>
 
-      <!-- 熱門品項長條圖 -->
-      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:4px">熱門品項排行</div>
-        <div style="font-size:11px;color:#888780;margin-bottom:12px">依銷售份數（Top 8）</div>
-        <canvas id="chart-items"></canvas>
-        <div id="rev-items-empty" style="display:none;text-align:center;padding:32px;font-size:13px;color:#888780">此區間無訂單資料</div>
-      </div>
+        <!-- 各地點營業額圖 -->
+        <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:4px">各地點營業額</div>
+          <div style="font-size:11px;color:#888780;margin-bottom:12px" id="rev-loc-subtitle"></div>
+          <canvas id="chart-location" height="220"></canvas>
+          <div id="rev-loc-empty" style="display:none;text-align:center;padding:32px;font-size:13px;color:#888780">此區間無訂單資料</div>
+        </div>
 
-      <!-- 地點訂單明細表 -->
-      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px">
-        <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:12px">地點明細</div>
-        <div id="rev-by-location"></div>
+        <!-- 熱門品項長條圖 -->
+        <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:4px">熱門品項排行</div>
+          <div style="font-size:11px;color:#888780;margin-bottom:12px">依銷售份數（Top 8）</div>
+          <canvas id="chart-items"></canvas>
+          <div id="rev-items-empty" style="display:none;text-align:center;padding:32px;font-size:13px;color:#888780">此區間無訂單資料</div>
+        </div>
+
+        <!-- 地點訂單明細表 -->
+        <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:12px">地點明細</div>
+          <div id="rev-by-location"></div>
+        </div>
+
       </div>
 
     </div>
@@ -362,7 +367,6 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
               <button onclick="addMenuItem()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增品項</button>
             </div>
           </div>
-          <button onclick="resetMenuSettings()" style="width:100%;padding:10px;background:transparent;color:#888780;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px">還原預設菜單</button>
         </div>
       </div>
 
@@ -1603,6 +1607,7 @@ async function goAdmin(){
     currentRole=session.user.email===BOSS_EMAIL?'boss':'helper';
     document.getElementById('view-login').style.display='none';
     document.getElementById('view-dash').style.display='block';
+    document.getElementById('admin-tabs').style.display='flex';
     document.getElementById('btn-logout').style.display='block';
     document.getElementById('btn-change-pw').style.display='block';
     document.getElementById('btn-role-label').style.display='inline';
@@ -1618,18 +1623,56 @@ function goFront(){
 let currentTab='orders';
 let revPeriod='day';
 
-function setRevPeriod(period){
-  revPeriod=period;
-  ['day','week','month','year'].forEach(p=>{
+const REV_PERIODS=['day','week','month','year'];
+
+function _updateRevButtons(){
+  REV_PERIODS.forEach(p=>{
     const btn=document.getElementById('rev-period-'+p);
-    if(btn){
-      btn.style.background=p===period?'#3B6D11':'#fff';
-      btn.style.color=p===period?'#fff':'#5F5E5A';
-      btn.style.border=p===period?'none':'1px solid rgba(0,0,0,0.12)';
-      btn.style.fontWeight=p===period?'600':'400';
-    }
+    if(!btn)return;
+    btn.style.background=p===revPeriod?'#3B6D11':'transparent';
+    btn.style.color=p===revPeriod?'#fff':'#3C3C43';
+    btn.style.fontWeight=p===revPeriod?'600':'400';
   });
-  renderRevenue();
+}
+
+async function setRevPeriod(period,dir){
+  const oldIdx=REV_PERIODS.indexOf(revPeriod);
+  const newIdx=REV_PERIODS.indexOf(period);
+  if(oldIdx===newIdx)return;
+  const direction=dir||(newIdx>oldIdx?'left':'right');
+  revPeriod=period;
+  _updateRevButtons();
+  const wrap=document.getElementById('rev-content-wrap');
+  if(wrap){
+    wrap.style.transition='opacity 0.12s,transform 0.12s';
+    wrap.style.opacity='0';
+    wrap.style.transform=`translateX(${direction==='left'?'-20px':'20px'})`;
+    await new Promise(r=>setTimeout(r,130));
+  }
+  await renderRevenue();
+  if(wrap){
+    wrap.style.transition='none';
+    wrap.style.transform=`translateX(${direction==='left'?'20px':'-20px'})`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      wrap.style.transition='opacity 0.2s,transform 0.2s';
+      wrap.style.opacity='1';
+      wrap.style.transform='translateX(0)';
+    }));
+  }
+}
+
+function initRevSwipe(){
+  const el=document.getElementById('tab-content-revenue');
+  let sx=0,sy=0;
+  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  el.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx))return;
+    const idx=REV_PERIODS.indexOf(revPeriod);
+    if(dx<0&&idx<REV_PERIODS.length-1)setRevPeriod(REV_PERIODS[idx+1],'left');
+    if(dx>0&&idx>0)setRevPeriod(REV_PERIODS[idx-1],'right');
+  },{passive:true});
 }
 
 function getRevPeriodRange(){
@@ -1873,6 +1916,7 @@ async function doLogin(){
 
   document.getElementById('view-login').style.display='none';
   document.getElementById('view-dash').style.display='block';
+  document.getElementById('admin-tabs').style.display='flex';
   document.getElementById('btn-logout').style.display='block';
   document.getElementById('btn-change-pw').style.display='block';
   document.getElementById('btn-role-label').style.display='inline';
@@ -1930,6 +1974,7 @@ async function logout(){
   currentRole='';
   switchTab('orders');
   document.getElementById('view-dash').style.display='none';
+  document.getElementById('admin-tabs').style.display='none';
   document.getElementById('view-login').style.display='block';
   document.getElementById('btn-logout').style.display='none';
   document.getElementById('btn-change-pw').style.display='none';
@@ -2345,14 +2390,38 @@ function setFilter(f,btn){
   document.querySelectorAll('#status-filter-row .ftag').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');renderOrders();
 }
-async function clearAll(){
-  if(!confirm('確定清除所有訂單？'))return;
+function clearAll(){
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML=`<div style="background:#fff;border-radius:16px;padding:24px;max-width:340px;width:100%">
+    <div style="font-size:16px;font-weight:700;color:#A32D2D;margin-bottom:8px">⚠️ 清除所有訂單</div>
+    <div style="font-size:14px;color:#5F5E5A;margin-bottom:16px;line-height:1.5">此操作<strong>無法復原</strong>，將永久刪除所有訂單資料。<br>請輸入「清除全部」以確認。</div>
+    <input id="clear-confirm-input" type="text" placeholder="請輸入：清除全部" style="width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:14px">
+    <div style="display:flex;gap:10px">
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit">取消</button>
+      <button id="clear-confirm-btn" onclick="confirmClearAll(this)" style="flex:1;padding:10px;border:none;border-radius:8px;background:#ccc;color:#fff;font-size:14px;font-weight:600;cursor:not-allowed;font-family:inherit" disabled>確認清除</button>
+    </div>
+  </div>`;
+  modal.querySelector('#clear-confirm-input').addEventListener('input',function(){
+    const btn=modal.querySelector('#clear-confirm-btn');
+    const ok=this.value==='清除全部';
+    btn.disabled=!ok;
+    btn.style.background=ok?'#A32D2D':'#ccc';
+    btn.style.cursor=ok?'pointer':'not-allowed';
+  });
+  document.body.appendChild(modal);
+}
+async function confirmClearAll(btn){
+  const modal=btn.closest('div[style*="position:fixed"]');
+  btn.textContent='刪除中…';btn.disabled=true;
   try{await sbTimeout(_sb.from('orders').delete().neq('id',''));}
-  catch(e){alert('清除失敗，請稍後再試');return;}
+  catch(e){alert('清除失敗，請稍後再試');modal.remove();return;}
+  modal.remove();
   renderDash();
 }
 
 init();
+initRevSwipe();
 </script>
 </body>
 </html>
