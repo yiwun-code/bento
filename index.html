@@ -1665,8 +1665,8 @@ function initRevSwipe(){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx))return;
-    // 左滑 = 往過去（-1），右滑 = 往未來（+1）
-    navigateRevOffset(dx<0?-1:1);
+    // 右滑 = 往過去（-1），左滑 = 往未來（+1）
+    navigateRevOffset(dx>0?-1:1);
   },{passive:true,capture:true});
 }
 
@@ -1675,7 +1675,8 @@ function getRevPeriodRange(){
   if(revPeriod==='day'){
     const d=new Date(now); d.setDate(d.getDate()+revOffset);
     const iso=d.toISOString().slice(0,10);
-    return {start:iso, end:iso, label:(revOffset===0?'今日 ':'')+iso};
+    const label=revOffset===0?`今日<br>${iso}`:iso;
+    return {start:iso, end:iso, label, exportLabel:revOffset===0?`今日 ${iso}`:iso};
   }
   if(revPeriod==='week'){
     const day=now.getDay()||7;
@@ -1732,7 +1733,7 @@ async function exportOrders(){
 
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'訂單');
-  XLSX.writeFile(wb,`生根農場訂單_${range.label}.xlsx`);
+  XLSX.writeFile(wb,`生根農場訂單_${range.exportLabel||range.label}.xlsx`);
 }
 
 let _revOrdersCache=null;
@@ -1781,7 +1782,7 @@ async function renderRevenue(){
 
   const locSubtitle=document.getElementById('rev-loc-subtitle');
   const locEmpty=document.getElementById('rev-loc-empty');
-  if(locSubtitle)locSubtitle.textContent=range.label;
+  if(locSubtitle)locSubtitle.textContent=range.exportLabel||range.label;
 
   // 地點長條圖
   if(chartLocation){chartLocation.destroy();chartLocation=null;}
