@@ -747,7 +747,7 @@ function formatPhone(el){
   el.value=formatted;
 }
 function isValidPhone(val){
-  return /^09\d{2}-\d{3}-\d{3}$/.test(val);
+  return /^09\d{8}$/.test(val.replace(/\D/g,''));
 }
 
 // 地點對應價格
