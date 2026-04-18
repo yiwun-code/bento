@@ -1675,7 +1675,7 @@ function getRevPeriodRange(){
   if(revPeriod==='day'){
     const d=new Date(now); d.setDate(d.getDate()+revOffset);
     const iso=d.toISOString().slice(0,10);
-    const label=revOffset===0?`今日<br>${iso}`:iso;
+    const label=revOffset===0?`今日 ${iso}`:iso;
     return {start:iso, end:iso, label, exportLabel:revOffset===0?`今日 ${iso}`:iso};
   }
   if(revPeriod==='week'){
