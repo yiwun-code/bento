@@ -468,7 +468,6 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
 <script>
 const BENTO_IDS=['A','B','C','N'];
-const SAUCED_IDS=['D','E','F','G','H','I','J','K','L','M'];
 
 const SUPABASE_URL='https://zxjlwhgchdgqclqjervn.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4amx3aGdjaGRncWNscWplcnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc3NjksImV4cCI6MjA5MTkxMzc2OX0.GBNle4CByPBdaaPw5RLNJqWOKhuG6WxRR_qfKiYANGo';
@@ -1510,14 +1509,9 @@ function addToCalendar(){
   });
   orderId=document.getElementById('success-sub')?.textContent?.match(/#[\d-]+/)?.[0]||'';
 
-  // 解析日期時間
-  const now=new Date();
-  const year=now.getFullYear();
-  // date 格式 "4/24（週五）" → 取月/日
-  const dateMatch=date.match(/(\d+)\/(\d+)/);
-  if(!dateMatch)return;
-  const month=String(dateMatch[1]).padStart(2,'0');
-  const day=String(dateMatch[2]).padStart(2,'0');
+  // 解析日期時間：用 selectedDate（YYYY-MM-DD）取正確年份，避免跨年錯誤
+  if(!selectedDate)return;
+  const [year,month,day]=selectedDate.split('-');
   // time 格式 "12:00"
   const timeMatch=time.match(/(\d+):(\d+)/);
   if(!timeMatch)return;
@@ -1706,7 +1700,7 @@ async function renderRevenue(){
   const filtered=orders.filter(o=>o.status!=='cancel'&&o.date>=range.start&&o.date<=range.end);
 
   const totalRev=filtered.reduce((s,o)=>s+o.total,0);
-  const totalQtyR=filtered.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+  const totalQtyR=filtered.reduce((s,o)=>s+(o.items||[]).reduce((ss,i)=>ss+i.qty,0),0);
   const orderCount=filtered.length;
 
   // 總覽
@@ -1721,7 +1715,7 @@ async function renderRevenue(){
     const loc=(o.location||'未知').split(' ')[0]; // 只取區域名稱
     if(!byLoc[loc])byLoc[loc]={rev:0,qty:0,orders:0,fullName:o.location||'未知'};
     byLoc[loc].rev+=o.total;
-    byLoc[loc].qty+=o.items.reduce((s,i)=>s+i.qty,0);
+    byLoc[loc].qty+=(o.items||[]).reduce((s,i)=>s+i.qty,0);
     byLoc[loc].orders++;
   });
   const locEntries=Object.entries(byLoc).sort((a,b)=>b[1].rev-a[1].rev);
@@ -1769,7 +1763,7 @@ async function renderRevenue(){
 
   // 熱門品項
   const itemCount={};
-  filtered.forEach(o=>o.items.forEach(i=>{
+  filtered.forEach(o=>(o.items||[]).forEach(i=>{
     if(!itemCount[i.name])itemCount[i.name]={qty:0,rev:0};
     itemCount[i.name].qty+=i.qty;
     itemCount[i.name].rev+=i.qty*(i.unitPrice||i.origPrice||0);
@@ -2028,12 +2022,12 @@ async function renderOrders(){
   } else if(locFilter){
     // 篩選特定地點：顯示該地點詳細
     const active=filtered.filter(o=>o.status!=='cancel');
-    const totalBento=active.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+    const totalBento=active.reduce((s,o)=>s+(o.items||[]).reduce((ss,i)=>ss+i.qty,0),0);
     summary.style.display='block';
     summary.innerHTML=`<div style="background:#EAF3DE;border:1px solid rgba(59,109,17,0.2);border-radius:12px;padding:14px 16px;margin-bottom:8px">
       <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:10px">📦 備餐摘要 — ${locFilter}</div>
       ${active.map(o=>{
-        const qty=o.items.reduce((s,i)=>s+i.qty,0);
+        const qty=(o.items||[]).reduce((s,i)=>s+i.qty,0);
         const pay=o.payMethod==='linepay'?'LINE Pay':'現場付款';
         const payColor=o.payMethod==='linepay'?'#00B900':'#BA7517';
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(59,109,17,0.15)">
@@ -2057,7 +2051,7 @@ async function renderOrders(){
       const locKey=l.area+' '+l.name;
       const locOrders=todayOrders.filter(o=>o.location===locKey);
       if(!locOrders.length)return '';
-      const totalBento=locOrders.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+      const totalBento=locOrders.reduce((s,o)=>s+(o.items||[]).reduce((ss,i)=>ss+i.qty,0),0);
       const totalRev=locOrders.reduce((s,o)=>s+o.total,0);
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(59,109,17,0.12)">
         <div>
@@ -2069,7 +2063,7 @@ async function renderOrders(){
     }).filter(Boolean).join('');
 
     if(!locSummaries){summary.style.display='none';return;}
-    const grandTotal=todayOrders.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+    const grandTotal=todayOrders.reduce((s,o)=>s+(o.items||[]).reduce((ss,i)=>ss+i.qty,0),0);
     const grandRev=todayOrders.reduce((s,o)=>s+o.total,0);
     summary.style.display='block';
     summary.innerHTML=`<div style="background:#EAF3DE;border:1px solid rgba(59,109,17,0.2);border-radius:12px;padding:14px 16px;margin-bottom:8px">
@@ -2105,7 +2099,7 @@ function renderOrderCard(o){
     <div class="oc-meta">👤 ${escapeHtml(o.name)}｜📞 ${escapeHtml(o.phone)}</div>
     <div class="oc-meta">📅 ${escapeHtml(o.dateLabel||o.date)}｜🕐 ${escapeHtml(o.time)}</div>
     <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':'現場付款'}</div>
-    <div class="oc-items">${o.items.map(i=>{
+    <div class="oc-items">${(o.items||[]).map(i=>{
       let parts=[`<strong>${i.name}</strong> ×${i.qty}`];
       if(i.normal>0)parts.push(`要澱粉×${i.normal}`);
       if(i.noCarb>0)parts.push(`<span style="color:#3B6D11;font-weight:600">不要澱粉×${i.noCarb}</span>`);
@@ -2151,7 +2145,7 @@ async function startEdit(id){
   const o=orders.find(x=>x.id===id);
   if(!o)return;
   // 先把現有品項數量塞進 editQtys
-  o.items.forEach(i=>{
+  (o.items||[]).forEach(i=>{
     const item=MENU.find(m=>m.name===i.name);
     if(item)editQtys[item.id]={qty:i.qty,normal:i.normal??i.qty,noCarb:i.noCarb??0,price:item.price};
   });
