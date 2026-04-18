@@ -331,7 +331,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
     <div id="tab-content-settings" style="display:none">
 
       <!-- 設定子 tab 列 -->
-      <div style="display:flex;background:#F5F4F0;border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;overflow-x:auto">
+      <div id="settings-subtab-bar" style="display:flex;background:#F5F4F0;border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;overflow-x:auto;position:sticky;z-index:9">
         <button id="stab-menu" onclick="switchSettingsTab('menu')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#3B6D11;background:transparent;border:none;border-bottom:2.5px solid #3B6D11;cursor:pointer;font-family:inherit;white-space:nowrap">菜單管理</button>
         <button id="stab-price" onclick="switchSettingsTab('price')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#888780;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap">價格與折扣</button>
         <button id="stab-taco" onclick="switchSettingsTab('taco')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#888780;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap">脆餅口味</button>
@@ -376,7 +376,6 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
           <div style="font-size:13px;color:#888780;margin-bottom:12px">修改後按「儲存價格」，新訂單即套用新價格，已成立訂單不受影響</div>
           <div id="pricing-settings"></div>
           <button onclick="savePricingSettings()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px">儲存價格</button>
-          <button onclick="resetPricingSettings()" style="width:100%;padding:10px;background:transparent;color:#888780;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px">還原預設價格</button>
         </div>
       </div>
 
@@ -1608,6 +1607,7 @@ async function goAdmin(){
     document.getElementById('view-login').style.display='none';
     document.getElementById('view-dash').style.display='block';
     document.getElementById('admin-tabs').style.display='flex';
+    updateSubtabTop();
     document.getElementById('btn-logout').style.display='block';
     document.getElementById('btn-change-pw').style.display='block';
     document.getElementById('btn-role-label').style.display='inline';
@@ -1635,13 +1635,9 @@ function _updateRevButtons(){
   });
 }
 
-async function setRevPeriod(period,dir){
-  const oldIdx=REV_PERIODS.indexOf(revPeriod);
-  const newIdx=REV_PERIODS.indexOf(period);
-  if(oldIdx===newIdx)return;
-  const direction=dir||(newIdx>oldIdx?'left':'right');
-  revPeriod=period;
-  _updateRevButtons();
+let revOffset=0;
+
+async function _animateRevContent(direction){
   const wrap=document.getElementById('rev-content-wrap');
   if(wrap){
     wrap.style.transition='opacity 0.12s,transform 0.12s';
@@ -1661,6 +1657,22 @@ async function setRevPeriod(period,dir){
   }
 }
 
+async function setRevPeriod(period){
+  if(revPeriod===period)return;
+  const oldIdx=REV_PERIODS.indexOf(revPeriod);
+  const newIdx=REV_PERIODS.indexOf(period);
+  revPeriod=period;
+  revOffset=0;
+  _updateRevButtons();
+  await _animateRevContent(newIdx>oldIdx?'left':'right');
+}
+
+async function navigateRevOffset(delta){
+  if(revOffset+delta>0)return;
+  revOffset+=delta;
+  await _animateRevContent(delta<0?'left':'right');
+}
+
 function initRevSwipe(){
   const el=document.getElementById('tab-content-revenue');
   let sx=0,sy=0;
@@ -1669,34 +1681,33 @@ function initRevSwipe(){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx))return;
-    const idx=REV_PERIODS.indexOf(revPeriod);
-    if(dx<0&&idx<REV_PERIODS.length-1)setRevPeriod(REV_PERIODS[idx+1],'left');
-    if(dx>0&&idx>0)setRevPeriod(REV_PERIODS[idx-1],'right');
+    navigateRevOffset(dx<0?-1:1);
   },{passive:true});
 }
 
 function getRevPeriodRange(){
   const now=new Date();
-  const today=now.toISOString().slice(0,10);
   if(revPeriod==='day'){
-    return {start:today, end:today, label:'今日 '+today};
+    const d=new Date(now); d.setDate(d.getDate()+revOffset);
+    const iso=d.toISOString().slice(0,10);
+    return {start:iso, end:iso, label:(revOffset===0?'今日 ':'')+iso};
   }
   if(revPeriod==='week'){
     const day=now.getDay()||7;
-    const mon=new Date(now); mon.setDate(now.getDate()-day+1);
+    const mon=new Date(now); mon.setDate(now.getDate()-day+1+revOffset*7);
     const sun=new Date(mon); sun.setDate(mon.getDate()+6);
     return {start:mon.toISOString().slice(0,10), end:sun.toISOString().slice(0,10),
-      label:`本週 ${mon.getMonth()+1}/${mon.getDate()} - ${sun.getMonth()+1}/${sun.getDate()}`};
+      label:`${mon.getMonth()+1}/${mon.getDate()} - ${sun.getMonth()+1}/${sun.getDate()}`};
   }
   if(revPeriod==='month'){
-    const start=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
-    const end=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().slice(0,10);
-    return {start, end, label:`${now.getFullYear()}年${now.getMonth()+1}月`};
+    const d=new Date(now.getFullYear(),now.getMonth()+revOffset,1);
+    const start=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
+    const end=new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().slice(0,10);
+    return {start, end, label:`${d.getFullYear()}年${d.getMonth()+1}月`};
   }
   if(revPeriod==='year'){
-    const start=`${now.getFullYear()}-01-01`;
-    const end=`${now.getFullYear()}-12-31`;
-    return {start, end, label:`${now.getFullYear()}年`};
+    const year=now.getFullYear()+revOffset;
+    return {start:`${year}-01-01`, end:`${year}-12-31`, label:`${year}年`};
   }
 }
 
@@ -1739,12 +1750,26 @@ async function exportOrders(){
   XLSX.writeFile(wb,`生根農場訂單_${range.label}.xlsx`);
 }
 
-async function renderRevenue(){
-  const rawOrders=await sbGetOrders();
-  const orders=rawOrders.map(o=>({
+let _revOrdersCache=null;
+let _revOrdersCacheTime=0;
+const REV_CACHE_TTL=5*60*1000;
+
+async function _getRevOrders(){
+  const now=Date.now();
+  if(_revOrdersCache&&now-_revOrdersCacheTime<REV_CACHE_TTL)return _revOrdersCache;
+  const raw=await sbGetOrders();
+  _revOrdersCache=raw.map(o=>({
     id:o.id, name:o.name, date:o.date, location:o.location,
     payMethod:o.pay_method, items:o.items, total:o.total, status:o.status
   }));
+  _revOrdersCacheTime=now;
+  return _revOrdersCache;
+}
+
+function invalidateRevCache(){_revOrdersCache=null;}
+
+async function renderRevenue(){
+  const orders=await _getRevOrders();
   const range=getRevPeriodRange();
   const filtered=orders.filter(o=>o.status!=='cancel'&&o.date>=range.start&&o.date<=range.end);
 
@@ -1917,6 +1942,7 @@ async function doLogin(){
   document.getElementById('view-login').style.display='none';
   document.getElementById('view-dash').style.display='block';
   document.getElementById('admin-tabs').style.display='flex';
+  updateSubtabTop();
   document.getElementById('btn-logout').style.display='block';
   document.getElementById('btn-change-pw').style.display='block';
   document.getElementById('btn-role-label').style.display='inline';
@@ -2420,8 +2446,16 @@ async function confirmClearAll(btn){
   renderDash();
 }
 
+function updateSubtabTop(){
+  const top=document.getElementById('admin-sticky-top');
+  const sub=document.getElementById('settings-subtab-bar');
+  if(top&&sub) sub.style.top=top.offsetHeight+'px';
+}
+window.addEventListener('resize',updateSubtabTop);
+
 init();
 initRevSwipe();
+updateSubtabTop();
 </script>
 </body>
 </html>
