@@ -528,25 +528,28 @@ const TIMES=['11:30','12:00','12:30'];
 const WEEKDAYS=['日','一','二','三','四','五','六'];
 const SAUCES=['和風油醋醬','蜂蜜芥末醬','凱薩醬','不要醬'];
 const DEFAULT_MENU=[
-  {id:'A',name:'義式雞腿便當',price:100,tag:'',active:true},
-  {id:'B',name:'義式雞腿便當＋蔬菜',price:100,tag:'',active:true},
-  {id:'C',name:'鮭魚＋蔬菜',price:100,tag:'',active:true},
-  {id:'D',name:'骰子牛肉',price:139,tag:'',active:true},
-  {id:'E',name:'椒鹽舒肥雞胸',price:139,tag:'',active:true},
-  {id:'F',name:'雙拼（義式雞腿＋奶油蒜蝦）',price:139,tag:'',active:true},
-  {id:'G',name:'雙拼（鮭魚＋舒肥雞胸）',price:139,tag:'',active:true},
-  {id:'H',name:'一般鮭魚',price:139,tag:'',active:true},
-  {id:'I',name:'煙燻鴨腿',price:139,tag:'',active:true},
-  {id:'J',name:'墨西哥脆餅（明太子蝦蟹起司）',price:139,tag:'',active:true},
-  {id:'K',name:'墨西哥脆餅（BBQ牛肉起司）',price:139,tag:'',active:true},
-  {id:'L',name:'墨西哥脆餅（泰豬起司）',price:139,tag:'',active:true},
-  {id:'M',name:'墨西哥脆餅（羅勒野菇起司）',price:139,tag:'素食',active:true},
-  {id:'N',name:'素食便當',price:100,tag:'素食',active:true},
+  {id:'A',name:'義式雞腿便當',price:100,tag:'',active:true,type:'bento'},
+  {id:'B',name:'義式雞腿便當＋蔬菜',price:100,tag:'',active:true,type:'bento'},
+  {id:'C',name:'鮭魚＋蔬菜',price:100,tag:'',active:true,type:'bento'},
+  {id:'D',name:'骰子牛肉',price:139,tag:'',active:true,type:'sauced'},
+  {id:'E',name:'椒鹽舒肥雞胸',price:139,tag:'',active:true,type:'sauced'},
+  {id:'F',name:'雙拼（義式雞腿＋奶油蒜蝦）',price:139,tag:'',active:true,type:'sauced'},
+  {id:'G',name:'雙拼（鮭魚＋舒肥雞胸）',price:139,tag:'',active:true,type:'sauced'},
+  {id:'H',name:'一般鮭魚',price:139,tag:'',active:true,type:'sauced'},
+  {id:'I',name:'煙燻鴨腿',price:139,tag:'',active:true,type:'sauced'},
+  {id:'J',name:'墨西哥脆餅（明太子蝦蟹起司）',price:139,tag:'',active:true,type:'sauced'},
+  {id:'K',name:'墨西哥脆餅（BBQ牛肉起司）',price:139,tag:'',active:true,type:'sauced'},
+  {id:'L',name:'墨西哥脆餅（泰豬起司）',price:139,tag:'',active:true,type:'sauced'},
+  {id:'M',name:'墨西哥脆餅（羅勒野菇起司）',price:139,tag:'素食',active:true,type:'sauced'},
+  {id:'N',name:'素食便當',price:100,tag:'素食',active:true,type:'bento'},
 ];
 function getMenu(){
   const saved=localStorage.getItem('bento_menu');
-  return saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_MENU));
+  const menu=saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_MENU));
+  menu.forEach(item=>{if(!item.type)item.type=BENTO_IDS.includes(item.id)?'bento':'sauced';});
+  return menu;
 }
+function isSauced(item){return item.type==='sauced';}
 function saveMenu(menu){localStorage.setItem('bento_menu',JSON.stringify(menu));sbUpsertSetting('menu',menu);}
 let MENU=getMenu();
 
@@ -773,16 +776,12 @@ function getLocationPricing(){
 const BENTO_IDS=['A','B','C','N']; // 便當類（原 $100）
 const SAUCED_IDS=['D','E','F','G','H','I','J','K','L','M']; // 沙拉類（原 $139）
 function itemHasCarb(item){
-  // 有明確設定就用設定，否則便當類預設開、沙拉類預設關
   if(item.hasCarb!==undefined)return item.hasCarb;
-  const isSauced=item.type?item.type==='sauced':SAUCED_IDS.includes(item.id)||(item.price===139&&!BENTO_IDS.includes(item.id));
-  return !isSauced;
+  return !isSauced(item);
 }
 function getItemPrice(item){
   const p=getLocationPricing();
-  // 原始品項用 id 判斷；動態新增的品項用 price 判斷（139=沙拉，其他=便當）
-  const isSauced=item.type?item.type==='sauced':SAUCED_IDS.includes(item.id)||(item.price===139&&!BENTO_IDS.includes(item.id));
-  return isSauced?p.saucedPrice:p.bentoPrice;
+  return isSauced(item)?p.saucedPrice:p.bentoPrice;
 }
 
 const TACO_IDS=['J','K','L','M']; // 四種墨西哥脆餅
@@ -819,7 +818,7 @@ function renderMenuSettings(){
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;font-weight:600;color:#2C2C2A">${item.name}</span>
           ${item.tag?`<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:1px 6px;border-radius:4px">${item.tag}</span>`:''}
-          <span style="font-size:11px;background:${(item.type?item.type==='sauced':SAUCED_IDS.includes(item.id))?'#EAF3DE':'#F5F4F0'};color:${(item.type?item.type==='sauced':SAUCED_IDS.includes(item.id))?'#3B6D11':'#5F5E5A'};padding:1px 6px;border-radius:4px">${(item.type?item.type==='sauced':SAUCED_IDS.includes(item.id))?'沙拉類':'便當類'}</span>
+          <span style="font-size:11px;background:${isSauced(item)?'#EAF3DE':'#F5F4F0'};color:${isSauced(item)?'#3B6D11':'#5F5E5A'};padding:1px 6px;border-radius:4px">${isSauced(item)?'沙拉類':'便當類'}</span>
         </div>
         <div style="display:flex;gap:6px">
           <button onclick="saveMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:none;background:#3B6D11;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">儲存修改</button>
@@ -1348,8 +1347,7 @@ function updateSubmitBtn(){
   else{
     for(const id of Object.keys(cart)){
       const item=MENU.find(m=>m.id===id);
-      const isSauced1=item.type?item.type==='sauced':SAUCED_IDS.includes(item.id)||(item.price===139&&!BENTO_IDS.includes(item.id));
-      if(isSauced1){
+      if(isSauced(item)){
         const diff=totalQtyForId(id)-sauceTotalForId(id);
         if(diff>0){msg=`${item.name} 還有 ${diff} 份未選醬料`;break;}
       }
@@ -1380,8 +1378,7 @@ function scrollToMissing(){
   for(const id of Object.keys(cart)){
     const item=MENU.find(m=>m.id===id);
     if(!item)continue;
-    const isSauced=item.type?item.type==='sauced':SAUCED_IDS.includes(item.id)||(item.price===139&&!BENTO_IDS.includes(item.id));
-    if(isSauced){
+    if(isSauced(item)){
       const diff=totalQtyForId(id)-sauceTotalForId(id);
       if(diff>0){
         // 用 data-id 找對應卡片，比 innerHTML 比對更可靠
@@ -1412,8 +1409,7 @@ async function submitOrder(){
   if(!Object.keys(cart).length||!selectedDate||!selectedTime||!selectedLocation||!name||!isValidPhone(phone))return;
   for(const id of Object.keys(cart)){
     const item=MENU.find(m=>m.id===id);
-    const isSauced2=item.type?item.type==='sauced':SAUCED_IDS.includes(item.id)||(item.price===139&&!BENTO_IDS.includes(item.id));
-    if(isSauced2){
+    if(isSauced(item)){
       const diff=totalQtyForId(id)-sauceTotalForId(id);
       if(diff>0){alert(`「${item.name}」還有 ${diff} 份未選醬料`);return;}
     }
