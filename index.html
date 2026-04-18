@@ -1676,13 +1676,13 @@ async function navigateRevOffset(delta){
 function initRevSwipe(){
   const el=document.getElementById('tab-content-revenue');
   let sx=0,sy=0;
-  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true,capture:true});
   el.addEventListener('touchend',e=>{
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx))return;
     navigateRevOffset(dx<0?-1:1);
-  },{passive:true});
+  },{passive:true,capture:true});
 }
 
 function getRevPeriodRange(){
