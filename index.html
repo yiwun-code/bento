@@ -1638,19 +1638,7 @@ function _updateRevButtons(){
 let revOffset=0;
 
 async function _animateRevContent(direction){
-  const wrap=document.getElementById('rev-content-wrap');
-  if(wrap){
-    wrap.style.transition='opacity 0.1s';
-    wrap.style.opacity='0';
-    await new Promise(r=>setTimeout(r,100));
-  }
   await renderRevenue();
-  if(wrap){
-    requestAnimationFrame(()=>{
-      wrap.style.transition='opacity 0.15s';
-      wrap.style.opacity='1';
-    });
-  }
 }
 
 async function setRevPeriod(period){
