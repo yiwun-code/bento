@@ -467,6 +467,9 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 </div>
 
 <script>
+const BENTO_IDS=['A','B','C','N'];
+const SAUCED_IDS=['D','E','F','G','H','I','J','K','L','M'];
+
 const SUPABASE_URL='https://zxjlwhgchdgqclqjervn.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4amx3aGdjaGRncWNscWplcnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc3NjksImV4cCI6MjA5MTkxMzc2OX0.GBNle4CByPBdaaPw5RLNJqWOKhuG6WxRR_qfKiYANGo';
 
@@ -546,8 +549,7 @@ const DEFAULT_MENU=[
 function getMenu(){
   const saved=localStorage.getItem('bento_menu');
   const menu=saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_MENU));
-  const bentoIds=['A','B','C','N'];
-  menu.forEach(item=>{if(!item.type)item.type=bentoIds.includes(item.id)?'bento':'sauced';});
+  menu.forEach(item=>{if(!item.type)item.type=BENTO_IDS.includes(item.id)?'bento':'sauced';});
   return menu;
 }
 function isSauced(item){return item.type==='sauced';}
@@ -777,8 +779,6 @@ function getLocationPricing(){
   const data=getPricingData();
   return data[selectedLocation]||{bentoPrice:115,saucedPrice:139,discount:false};
 }
-const BENTO_IDS=['A','B','C','N']; // 便當類（原 $100）
-const SAUCED_IDS=['D','E','F','G','H','I','J','K','L','M']; // 沙拉類（原 $139）
 function itemHasCarb(item){
   if(item.hasCarb!==undefined)return item.hasCarb;
   return !isSauced(item);
