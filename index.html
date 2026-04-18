@@ -482,43 +482,60 @@ const _sb=supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   }
 });
 
+// Timeout 包裝：超時就視為失敗
+function sbTimeout(promise,ms=8000){
+  return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Supabase timeout')),ms))]);
+}
+
 // 訂單
 async function sbGetOrders(){
-  const {data,error}=await _sb.from('orders').select('*').order('created_at',{ascending:false});
-  if(error){console.error('sbGetOrders:',error);return[];}
-  return data||[];
+  try{
+    const {data,error}=await sbTimeout(_sb.from('orders').select('*').order('created_at',{ascending:false}));
+    if(error){console.error('sbGetOrders:',error);return[];}
+    return data||[];
+  }catch(e){console.error('sbGetOrders timeout/error:',e);return[];}
 }
 async function sbUpsertOrder(order){
-  const {error}=await _sb.from('orders').insert({
-    id:order.id, name:order.name, phone:order.phone,
-    date:order.date, date_label:order.dateLabel, time:order.time,
-    location:order.location, pay_method:order.payMethod,
-    note:order.note, items:order.items, total:order.total,
-    status:order.status, created_at:order.createdAt
-  });
-  if(error){console.error('sbUpsertOrder error:', JSON.stringify(error));return null;}
-  return true;
+  try{
+    const {error}=await sbTimeout(_sb.from('orders').insert({
+      id:order.id, name:order.name, phone:order.phone,
+      date:order.date, date_label:order.dateLabel, time:order.time,
+      location:order.location, pay_method:order.payMethod,
+      note:order.note, items:order.items, total:order.total,
+      status:order.status, created_at:order.createdAt
+    }));
+    if(error){console.error('sbUpsertOrder error:', JSON.stringify(error));return null;}
+    return true;
+  }catch(e){console.error('sbUpsertOrder timeout/error:',e);return null;}
 }
-async function sbUpdateOrder(id, fields){
-  const {error}=await _sb.from('orders').update(fields).eq('id',id);
-  if(error){console.error('sbUpdateOrder:',error);return null;}
-  return true;
+async function sbUpdateOrder(id,fields){
+  try{
+    const {error}=await sbTimeout(_sb.from('orders').update(fields).eq('id',id));
+    if(error){console.error('sbUpdateOrder:',error);return null;}
+    return true;
+  }catch(e){console.error('sbUpdateOrder timeout/error:',e);return null;}
 }
 async function sbDeleteOrder(id){
-  const {error}=await _sb.from('orders').delete().eq('id',id);
-  if(error){console.error('sbDeleteOrder:',error);return null;}
-  return true;
+  try{
+    const {error}=await sbTimeout(_sb.from('orders').delete().eq('id',id));
+    if(error){console.error('sbDeleteOrder:',error);return null;}
+    return true;
+  }catch(e){console.error('sbDeleteOrder timeout/error:',e);return null;}
 }
 
 // 設定
 async function sbGetSetting(key){
-  const {data,error}=await _sb.from('settings').select('value').eq('key',key).maybeSingle();
-  if(error)return null;
-  return data?data.value:null;
+  try{
+    const {data,error}=await sbTimeout(_sb.from('settings').select('value').eq('key',key).maybeSingle());
+    if(error)return null;
+    return data?data.value:null;
+  }catch(e){console.error('sbGetSetting timeout/error:',e);return null;}
 }
 async function sbUpsertSetting(key,value){
-  const {error}=await _sb.from('settings').upsert({key,value},{onConflict:'key'});
-  if(error){console.error('sbUpsertSetting:',error);}
+  try{
+    const {error}=await sbTimeout(_sb.from('settings').upsert({key,value},{onConflict:'key'}));
+    if(error){console.error('sbUpsertSetting:',error);}
+  }catch(e){console.error('sbUpsertSetting timeout/error:',e);}
 }
 
 // 角色對應 email（在 Supabase Auth 建立這兩個帳號）
@@ -1411,7 +1428,7 @@ function scrollToMissing(){
 }
 
 async function generateOrderId(){
-  const {data,error}=await _sb.rpc('generate_order_id');
+  const {data,error}=await sbTimeout(_sb.rpc('generate_order_id'),8000);
   if(error||!data)throw new Error('無法產生訂單編號');
   return data;
 }
@@ -1581,7 +1598,7 @@ async function goAdmin(){
   document.getElementById('page-admin').classList.add('active');
   document.getElementById('nav-to-admin').classList.add('hide');
   // 檢查是否已有登入 session
-  const {data:{session}}=await _sb.auth.getSession();
+  const {data:{session}}=await sbTimeout(_sb.auth.getSession(),8000).catch(()=>({data:{session:null}}));
   if(session){
     currentRole=session.user.email===BOSS_EMAIL?'boss':'helper';
     document.getElementById('view-login').style.display='none';
@@ -1845,7 +1862,7 @@ async function doLogin(){
   // 帳號對應真實 email
   const emailMap={'boss':'a0903617197@gmail.com','helper':'helper@shengen.farm'};
   const email=emailMap[username]||`${username}@shengen.farm`;
-  const {data,error}=await _sb.auth.signInWithPassword({email,password:pw});
+  const {data,error}=await sbTimeout(_sb.auth.signInWithPassword({email,password:pw}),8000).catch(e=>({data:null,error:e}));
   if(error||!data.user){
     errEl.textContent='帳號或密碼錯誤，請再試一次';
     return;
@@ -2328,7 +2345,8 @@ function setFilter(f,btn){
 }
 async function clearAll(){
   if(!confirm('確定清除所有訂單？'))return;
-  await _sb.from('orders').delete().neq('id','');
+  try{await sbTimeout(_sb.from('orders').delete().neq('id',''));}
+  catch(e){alert('清除失敗，請稍後再試');return;}
   renderDash();
 }
 
