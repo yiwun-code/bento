@@ -1797,7 +1797,7 @@ async function renderRevenue(){
     chartLocation=new Chart(locCanvas,{
       type:'bar',
       data:{
-        labels:locEntries.map(([,v])=>v.fullName),
+        labels:locEntries.map(([,v])=>v.fullName.includes(' ')?v.fullName.split(' '):v.fullName),
         datasets:[{
           label:'營業額',
           data:locEntries.map(([,v])=>v.rev),
@@ -1867,7 +1867,8 @@ async function renderRevenue(){
             const l=topItems[idx][0];
             if(l.includes('墨西哥脆餅')){
               const m=l.match(/[（(](.+?)[）)]/);
-              if(m){const flavor=m[1].replace('起司','').slice(0,5);return `脆餅(${flavor})`;}
+              const flavor=m?m[1].replace('起司','').slice(0,5):'';
+              return flavor?`脆餅(${flavor})`:'脆餅';
             }
             return l.length>8?l.slice(0,8)+'…':l;
           }}}
