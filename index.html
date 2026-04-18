@@ -633,7 +633,7 @@ function renderAdminLocations(){
         ${!isActive?'<span style="font-size:11px;color:#888780;margin-left:8px;background:#E0DFD9;padding:2px 7px;border-radius:4px">已下架</span>':''}
       </div>
       <div style="display:flex;gap:6px">
-        <button onclick="showPauseCalendar('${loc.area} ${loc.name}')" style="padding:5px 12px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit">📅 暫停日期</button>
+        <button data-lockey="${escapeHtml(loc.area+' '+loc.name)}" onclick="showPauseCalendar(this.dataset.lockey)" style="padding:5px 12px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit">📅 暫停日期</button>
         <button onclick="toggleLocation(${i})" style="padding:5px 12px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${isActive?'#FAEEDA':'#EAF3DE'};color:${isActive?'#BA7517':'#3B6D11'};font-size:13px;cursor:pointer;font-family:inherit;font-weight:500">${isActive?'下架':'上架'}</button>
       </div>
     </div>`;
@@ -752,6 +752,9 @@ function formatPhone(el){
 }
 function isValidPhone(val){
   return /^09\d{8}$/.test(val.replace(/\D/g,''));
+}
+function escapeHtml(str){
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // 地點對應價格
@@ -1455,7 +1458,7 @@ async function submitOrder(){
     }).join('<br>')}</span></div>
     ${saved>0?`<div class="order-info-row"><span class="k">折扣優惠</span><span class="v" style="color:#3B6D11">省下 $${saved}</span></div>`:''}
     <div class="order-info-row"><span class="k">合計金額</span><span class="v" style="color:#3B6D11;font-size:16px;font-weight:700">$${total}</span></div>
-    ${order.note?`<div class="order-info-row"><span class="k">備註</span><span class="v">${order.note}</span></div>`:''}`;
+    ${order.note?`<div class="order-info-row"><span class="k">備註</span><span class="v">${escapeHtml(order.note)}</span></div>`:''}`;
   document.getElementById('view-order').style.display='none';
   document.getElementById('view-success').style.display='block';
 }
@@ -1958,7 +1961,7 @@ function renderLocFilter(){
   row.innerHTML=`<button class="ftag${locFilter===''?' on':''}" onclick="setLocFilter('',this)">所有地點</button>`
     +locs.map(l=>{
       const val=l.area+' '+l.name;
-      return `<button class="ftag${locFilter===val?' on':''}" onclick="setLocFilter('${val}',this)">${shortLocName(l)}</button>`;
+      return `<button class="ftag${locFilter===val?' on':''}" data-loc="${escapeHtml(val)}" onclick="setLocFilter(this.dataset.loc,this)">${escapeHtml(shortLocName(l))}</button>`;
     }).join('');
 }
 
@@ -2007,7 +2010,7 @@ async function renderOrders(){
         const payColor=o.payMethod==='linepay'?'#00B900':'#BA7517';
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(59,109,17,0.15)">
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:14px;font-weight:600;color:#2C2C2A">👤 ${o.name}</span>
+            <span style="font-size:14px;font-weight:600;color:#2C2C2A">👤 ${escapeHtml(o.name)}</span>
             <span style="font-size:13px;color:#5F5E5A">🕐 ${o.time}</span>
             <span style="font-size:13px;color:#3B6D11;font-weight:600">共 ${qty} 份</span>
           </div>
@@ -2072,9 +2075,9 @@ function renderOrderCard(o){
       <div><div class="oc-id">${o.id}</div><div class="oc-time">${o.createdAt} 下單</div></div>
       <span class="badge ${o.status==='new'?'b-new':o.status==='ready'?'b-ready':o.status==='done'?'b-done':'b-cancel'}">${o.status==='new'?'待處理':o.status==='ready'?'已備餐':o.status==='done'?'已取餐':'已取消'}</span>
     </div>
-    <div class="oc-meta">👤 ${o.name}｜📞 ${o.phone}</div>
-    <div class="oc-meta">📅 ${o.dateLabel||o.date}｜🕐 ${o.time}</div>
-    <div class="oc-meta">📍 ${o.location||'未填'}｜💳 ${o.payMethod==='linepay'?'LINE Pay':'現場付款'}</div>
+    <div class="oc-meta">👤 ${escapeHtml(o.name)}｜📞 ${escapeHtml(o.phone)}</div>
+    <div class="oc-meta">📅 ${escapeHtml(o.dateLabel||o.date)}｜🕐 ${escapeHtml(o.time)}</div>
+    <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':'現場付款'}</div>
     <div class="oc-items">${o.items.map(i=>{
       let parts=[`<strong>${i.name}</strong> ×${i.qty}`];
       if(i.normal>0)parts.push(`要澱粉×${i.normal}`);
@@ -2083,7 +2086,7 @@ function renderOrderCard(o){
       if(i.unitPrice&&i.unitPrice<i.origPrice)parts.push(`<span style="color:#3B6D11">$${i.unitPrice}/個</span>`);
       return parts.join(' · ');
     }).join('<br>')}</div>
-    ${o.note?`<div style="font-size:12px;color:#888780;font-style:italic;margin-bottom:8px">備註：${o.note}</div>`:''}
+    ${o.note?`<div style="font-size:12px;color:#888780;font-style:italic;margin-bottom:8px">備註：${escapeHtml(o.note)}</div>`:''}
     <div class="oc-footer">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         ${o.status==='new'?`
@@ -2144,9 +2147,9 @@ async function startEdit(id){
     <div style="font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:12px">✎ 編輯訂單 ${o.id}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">姓名</div>
-        <input id="e-name" value="${o.name}" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
+        <input id="e-name" value="${escapeHtml(o.name)}" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">電話</div>
-        <input id="e-phone" value="${o.phone}" maxlength="12" oninput="formatPhone(this)" inputmode="numeric" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
+        <input id="e-phone" value="${escapeHtml(o.phone)}" maxlength="12" oninput="formatPhone(this)" inputmode="numeric" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">取餐日期</div>
