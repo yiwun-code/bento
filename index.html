@@ -2329,10 +2329,14 @@ function showAllOrders(){
 }
 
 function renderOrderCard(o){
+  const _n=parseOrderNote(o.note);
   return `<div class="order-card" id="oc-${o.id}">
     <div class="oc-head">
       <div><div class="oc-id">${o.id}</div><div class="oc-time">${o.createdAt} 下單</div></div>
-      <span class="badge ${o.status==='new'?'b-new':o.status==='ready'?'b-ready':o.status==='done'?'b-done':'b-cancel'}">${o.status==='new'?'待處理':o.status==='ready'?'已備餐':o.status==='done'?'已取餐':'已取消'}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        ${_n.paid?`<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-weight:600">✓ 已付款</span>`:''}
+        <span class="badge ${o.status==='new'?'b-new':o.status==='ready'?'b-ready':o.status==='done'?'b-done':'b-cancel'}">${o.status==='new'?'待處理':o.status==='ready'?'已備餐':o.status==='done'?'已取餐':'已取消'}</span>
+      </div>
     </div>
     <div class="oc-meta">👤 ${escapeHtml(o.name)}｜📞 ${escapeHtml(o.phone)}</div>
     <div class="oc-meta">📅 ${escapeHtml(o.dateLabel||o.date)}｜🕐 ${escapeHtml(o.time)}</div>
@@ -2346,10 +2350,9 @@ function renderOrderCard(o){
       return parts.join(' · ');
     }).join('<br>')}</div>
     ${(()=>{const n=parseOrderNote(o.note);const parts=[];
-      if(n.text)parts.push(`<div class="oc-meta" style="color:#2C2C2A;margin-bottom:2px">📝 ${escapeHtml(n.text)}</div>`);
-      if(n.addr)parts.push(`<div class="oc-meta" style="color:#1A4DB5;margin-bottom:2px">🚗 外送：${escapeHtml(n.addr)}</div>`);
-      if(n.paid)parts.push(`<span style="display:inline-block;font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-weight:600;margin-bottom:2px">✓ 已付款</span>`);
-      return parts.length?`<div style="margin-bottom:6px">${parts.join('')}</div>`:'';
+      if(n.text)parts.push(`<div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#2C2C2A;margin-bottom:2px"><span style="line-height:1">📝</span><span>${escapeHtml(n.text)}</span></div>`);
+      if(n.addr)parts.push(`<div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#1A4DB5;margin-bottom:2px"><span style="line-height:1">🚗</span><span>外送：${escapeHtml(n.addr)}</span></div>`);
+      return parts.length?`<div style="margin-bottom:8px">${parts.join('')}</div>`:'';
     })()}
     <div class="oc-footer">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
