@@ -27,7 +27,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .m-name{font-size:15px;font-weight:600;margin-bottom:2px;color:#2C2C2A;line-height:1.3}
 .m-price{font-size:14px;color:#639922;font-weight:600}
 .m-tag{display:inline-block;font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:500;vertical-align:middle}
-.m-type-tag{display:inline-block;font-size:10px;border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:600;vertical-align:middle}
+.m-type-tag{display:inline-block;font-size:11px;border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:600;vertical-align:middle}
 .menu-section-hdr{font-size:11px;font-weight:700;color:#888780;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(0,0,0,0.08);margin-bottom:4px}
 .qty-row{display:flex;align-items:center;flex-shrink:0}
 .qty-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;font-weight:300;transition:background 0.1s}
@@ -50,7 +50,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .date-btn.on .d-day{color:#27500A}
 .date-btn.on .d-tag{background:#3B6D11;color:#fff}
 /* time */
-.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px}
+.time-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:8px}
 .time-btn{background:#fff;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;padding:11px 4px;text-align:center;cursor:pointer;font-size:14px;font-weight:500;color:#5F5E5A;user-select:none;transition:all 0.12s}
 .time-btn.on{border-color:#3B6D11;background:#EAF3DE;color:#27500A}
 /* form */
@@ -65,7 +65,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .loc-name{font-size:14px;font-weight:600;color:#2C2C2A;line-height:1.3}
 .loc-sub{font-size:12px;color:#888780;margin-top:1px}
 /* payment */
-.pay-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid rgba(0,0,0,0.12);background:#fff;border-radius:10px;cursor:pointer;user-select:none;flex:1;transition:all 0.12s}
+.pay-btn{display:flex;align-items:center;gap:8px;padding:11px 10px;border:1.5px solid rgba(0,0,0,0.12);background:#fff;border-radius:10px;cursor:pointer;user-select:none;flex:1;transition:all 0.12s;min-width:0}
 .pay-dot{width:18px;height:18px;border-radius:50%;border:2px solid #888780;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 /* cart */
 .cart-box{background:#EAF3DE;border:1px solid rgba(59,109,17,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px}
@@ -174,15 +174,15 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <div class="pay-btn" id="pay-cash" onclick="selectPay('cash')" style="border-color:#3B6D11;background:#EAF3DE">
             <div class="pay-dot" id="pay-cash-dot" style="border-color:#3B6D11;background:#3B6D11"><div style="width:7px;height:7px;border-radius:50%;background:#fff"></div></div>
-            <div><div style="font-size:14px;font-weight:600;color:#27500A">現場付款</div></div>
+            <div><div class="pay-label" id="pay-cash-label" style="font-size:13px;font-weight:600;color:#27500A">現場付款</div></div>
           </div>
           <div class="pay-btn" id="pay-linepay" onclick="selectPay('linepay')">
             <div class="pay-dot" id="pay-linepay-dot"></div>
-            <div><div style="font-size:14px;font-weight:600;color:#2C2C2A">LINE Pay</div></div>
+            <div><div class="pay-label" id="pay-linepay-label" style="font-size:13px;font-weight:600;color:#2C2C2A">LINE Pay</div></div>
           </div>
           <div class="pay-btn" id="pay-transfer" onclick="selectPay('transfer')">
             <div class="pay-dot" id="pay-transfer-dot"></div>
-            <div><div style="font-size:14px;font-weight:600;color:#2C2C2A">匯款</div></div>
+            <div><div class="pay-label" id="pay-transfer-label" style="font-size:13px;font-weight:600;color:#2C2C2A">銀行匯款</div></div>
           </div>
         </div>
         <div id="linepay-note" style="display:none;margin-top:10px">
@@ -198,24 +198,27 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
           </div>
         </div>
         <div id="transfer-note" style="display:none;margin-top:10px">
-          <div style="background:#1A4DB5;border-radius:14px;padding:20px 16px;text-align:center">
-            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.8);margin-bottom:4px">銀行匯款</div>
-            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:14px">請匯款至以下帳號</div>
-            <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:14px 16px;margin-bottom:12px;text-align:left">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <span style="font-size:12px;color:rgba(255,255,255,0.75)">銀行</span>
-                <span style="font-size:14px;font-weight:600;color:#fff">中國信託商業銀行（822）</span>
+          <div style="background:#EAF3DE;border:1.5px solid rgba(59,109,17,0.25);border-radius:14px;padding:20px 16px;font-family:inherit;text-align:center">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#639922;margin-bottom:4px">銀行匯款</div>
+            <div style="font-size:16px;font-weight:700;color:#27500A;margin-bottom:14px">請匯款至以下帳號</div>
+            <div style="background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:12px;text-align:left">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)">
+                <span style="font-size:13px;color:#5F5E5A;font-family:inherit">銀行</span>
+                <span style="font-size:13px;font-weight:600;color:#2C2C2A;font-family:inherit">中國信託（822）</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <span style="font-size:12px;color:rgba(255,255,255,0.75)">戶名</span>
-                <span style="font-size:14px;font-weight:600;color:#fff">蔡明憲</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)">
+                <span style="font-size:13px;color:#5F5E5A;font-family:inherit">戶名</span>
+                <span style="font-size:13px;font-weight:600;color:#2C2C2A;font-family:inherit">蔡明憲</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="font-size:12px;color:rgba(255,255,255,0.75)">帳號</span>
-                <span style="font-size:16px;font-weight:700;color:#fff;letter-spacing:1px">130-540-568-163</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0">
+                <span style="font-size:13px;color:#5F5E5A;font-family:inherit">帳號</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:13px;font-weight:700;color:#27500A;font-family:inherit">130-540-568-163</span>
+                  <button onclick="copyTransferAccount(this)" style="font-size:11px;font-weight:600;color:#fff;background:#3B6D11;border:none;border-radius:5px;padding:3px 8px;cursor:pointer;font-family:inherit;white-space:nowrap">複製</button>
+                </div>
               </div>
             </div>
-            <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.9)">匯款完成請截圖傳給老闆確認 📸</div>
+            <div style="background:rgba(59,109,17,0.1);border-radius:8px;padding:8px 12px;font-size:12px;color:#3B6D11;font-family:inherit">匯款完成請截圖傳給老闆確認 📸</div>
           </div>
         </div>
       </div>
@@ -593,7 +596,7 @@ const DEFAULT_MENU=[
   {id:'I',name:'煙燻鴨腿',price:139,tag:'',active:true,type:'sauced'},
   {id:'J',name:'墨西哥脆餅（明太子蝦蟹起司）',price:139,tag:'',active:true,type:'sauced'},
   {id:'K',name:'墨西哥脆餅（BBQ牛肉起司）',price:139,tag:'',active:true,type:'sauced'},
-  {id:'L',name:'墨西哥脆餅（泰豬起司）',price:139,tag:'',active:true,type:'sauced'},
+  {id:'L',name:'墨西哥脆餅（泰豬起司）',price:139,tag:['微辣'],active:true,type:'sauced'},
   {id:'M',name:'墨西哥脆餅（羅勒野菇起司）',price:139,tag:'方便素',active:true,type:'sauced'},
   {id:'N',name:'素食便當',price:100,tag:'方便素',active:true,type:'bento'},
 ];
@@ -609,6 +612,8 @@ function getMenu(){
     } else {
       item.tag=item.tag.map(t=>t==='素食'?'方便素':t);
     }
+    // 泰豬起司預設微辣
+    if(item.id==='L'&&!item.tag.includes('微辣'))item.tag.push('微辣');
   });
   return menu;
 }
@@ -1430,18 +1435,40 @@ function selectLocation(val,el){
   updateSubmitBtn();
 }
 
+function copyTransferAccount(btn){
+  const text='130540568163';
+  const done=()=>{
+    const orig=btn.textContent;btn.textContent='已複製！';btn.style.background='#27500A';btn.style.color='#fff';
+    setTimeout(()=>{btn.textContent=orig;btn.style.background='#3B6D11';btn.style.color='#fff';},1500);
+  };
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else {
+    fallbackCopy(text,done);
+  }
+}
+function fallbackCopy(text,cb){
+  const el=document.createElement('textarea');
+  el.value=text;el.style.position='fixed';el.style.opacity='0';
+  document.body.appendChild(el);el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  cb();
+}
 function selectPay(method){
   selectedPay=method;
   const ids=['cash','linepay','transfer'];
   ids.forEach(m=>{
     const btn=document.getElementById('pay-'+m);
     const dot=document.getElementById('pay-'+m+'-dot');
+    const lbl=document.getElementById('pay-'+m+'-label');
     const active=m===method;
     btn.style.borderColor=active?'#3B6D11':'rgba(0,0,0,0.12)';
     btn.style.background=active?'#EAF3DE':'#fff';
     dot.style.border=active?'2px solid #3B6D11':'2px solid #888780';
     dot.style.background=active?'#3B6D11':'transparent';
     dot.innerHTML=active?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':'';
+    if(lbl)lbl.style.color=active?'#27500A':'#2C2C2A';
   });
   document.getElementById('linepay-note').style.display=method==='linepay'?'block':'none';
   document.getElementById('transfer-note').style.display=method==='transfer'?'block':'none';
@@ -1619,7 +1646,7 @@ async function submitOrder(){
     <div class="order-info-row"><span class="k">取餐日期</span><span class="v">${dateLabel}</span></div>
     <div class="order-info-row"><span class="k">取餐時間</span><span class="v">${order.time}</span></div>
     <div class="order-info-row"><span class="k">取餐地點</span><span class="v">${order.location}</span></div>
-    <div class="order-info-row"><span class="k">付款方式</span><span class="v">${order.payMethod==='linepay'?'LINE Pay':order.payMethod==='transfer'?'匯款':'現場付款'}</span></div>
+    <div class="order-info-row"><span class="k">付款方式</span><span class="v">${order.payMethod==='linepay'?'LINE Pay':order.payMethod==='transfer'?'銀行匯款':'現場付款'}</span></div>
     <div class="order-info-row" style="align-items:flex-start"><span class="k">訂購內容</span><span class="v" style="text-align:right;line-height:2">${items.map(i=>{
       let dl=[];
       if(i.normal>0)dl.push(`要澱粉×${i.normal}`);
@@ -2237,7 +2264,7 @@ async function renderOrders(){
       <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:10px">📦 備餐摘要 — ${escapeHtml(locFilter)}</div>
       ${active.map(o=>{
         const qty=(o.items||[]).reduce((s,i)=>s+i.qty,0);
-        const pay=o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'匯款':'現場付款';
+        const pay=o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'銀行匯款':'現場付款';
         const payColor=o.payMethod==='linepay'?'#00B900':o.payMethod==='transfer'?'#1A4DB5':'#BA7517';
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(59,109,17,0.15)">
           <div style="display:flex;align-items:center;gap:10px">
@@ -2309,7 +2336,7 @@ function renderOrderCard(o){
     </div>
     <div class="oc-meta">👤 ${escapeHtml(o.name)}｜📞 ${escapeHtml(o.phone)}</div>
     <div class="oc-meta">📅 ${escapeHtml(o.dateLabel||o.date)}｜🕐 ${escapeHtml(o.time)}</div>
-    <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'匯款':'現場付款'}</div>
+    <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'銀行匯款':'現場付款'}</div>
     <div class="oc-items">${(o.items||[]).map(i=>{
       let parts=[`<strong>${i.name}</strong> ×${i.qty}`];
       if(i.normal>0)parts.push(`要澱粉×${i.normal}`);
@@ -2319,9 +2346,9 @@ function renderOrderCard(o){
       return parts.join(' · ');
     }).join('<br>')}</div>
     ${(()=>{const n=parseOrderNote(o.note);const parts=[];
-      if(n.text)parts.push(`<div style="font-size:12px;color:#3D3C38;background:#F5F4F0;border-radius:6px;padding:5px 10px;margin-bottom:4px">📝 ${escapeHtml(n.text)}</div>`);
-      if(n.addr)parts.push(`<div style="font-size:12px;color:#1A4DB5;background:#EBF5FF;border-radius:6px;padding:5px 10px;margin-bottom:4px">🚗 外送：${escapeHtml(n.addr)}</div>`);
-      if(n.paid)parts.push(`<span style="display:inline-block;font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-weight:600;margin-bottom:4px">✓ 已付款</span>`);
+      if(n.text)parts.push(`<div class="oc-meta" style="color:#2C2C2A;margin-bottom:2px">📝 ${escapeHtml(n.text)}</div>`);
+      if(n.addr)parts.push(`<div class="oc-meta" style="color:#1A4DB5;margin-bottom:2px">🚗 外送：${escapeHtml(n.addr)}</div>`);
+      if(n.paid)parts.push(`<span style="display:inline-block;font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-weight:600;margin-bottom:2px">✓ 已付款</span>`);
       return parts.length?`<div style="margin-bottom:6px">${parts.join('')}</div>`:'';
     })()}
     <div class="oc-footer">
@@ -2400,7 +2427,7 @@ async function startEdit(id){
         <select id="e-pay" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
           <option value="cash"${o.payMethod==='cash'?'selected':''}>現場付款</option>
           <option value="linepay"${o.payMethod==='linepay'?'selected':''}>LINE Pay</option>
-          <option value="transfer"${o.payMethod==='transfer'?'selected':''}>匯款</option>
+          <option value="transfer"${o.payMethod==='transfer'?'selected':''}>銀行匯款</option>
         </select></div>
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">客人備註</div>
         <input id="e-note" value="${escapeHtml(n.text)}" placeholder="選填" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
