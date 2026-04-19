@@ -660,6 +660,8 @@ async function init(){
       if(pausedData)localStorage.setItem('bento_paused_dates',JSON.stringify(pausedData));
       else localStorage.removeItem('bento_paused_dates');
     }catch(e){}
+    // 跨訂單脆餅口味自動推導（老闆無手動設定時生效）
+    await deriveTacoFlavorsFromOrders();
     // Supabase 回來後用最新資料重新渲染
     MENU=getMenu();
     buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
@@ -880,8 +882,28 @@ function getItemPrice(item){
 const TACO_IDS=['J','K','L','M']; // 四種墨西哥脆餅
 
 function getTacoSettings(){
-  const saved=localStorage.getItem('taco_flavors');
-  return saved?JSON.parse(saved):null; // null = 全部開放
+  const manual=localStorage.getItem('taco_flavors');
+  if(manual!==null)return JSON.parse(manual); // 老闆手動設定優先
+  const auto=localStorage.getItem('taco_flavors_auto');
+  if(auto!==null)return JSON.parse(auto); // 跨訂單自動推導
+  return null; // 全部開放
+}
+async function deriveTacoFlavorsFromOrders(){
+  if(localStorage.getItem('taco_flavors')!==null)return; // 老闆有手動設定，不覆蓋
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const {data,error}=await sbTimeout(
+      _sb.from('orders').select('items').eq('date',today).neq('status','cancelled')
+    );
+    if(error||!data){return;}
+    const tacoSet=new Set();
+    data.forEach(o=>(o.items||[]).forEach(i=>{if(TACO_IDS.includes(i.id))tacoSet.add(i.id);}));
+    if(tacoSet.size>=2){
+      localStorage.setItem('taco_flavors_auto',JSON.stringify([...tacoSet]));
+    } else {
+      localStorage.removeItem('taco_flavors_auto');
+    }
+  }catch(e){}
 }
 async function loadTacoSettings(){
   const data=await sbGetSetting('taco_flavors');
@@ -897,6 +919,7 @@ async function saveTacoSettings(){
 }
 async function resetTacoSettings(){
   localStorage.removeItem('taco_flavors');
+  localStorage.removeItem('taco_flavors_auto');
   await sbUpsertSetting('taco_flavors',null);
   renderTacoSettings();
   alert('已清除，全部口味開放');
