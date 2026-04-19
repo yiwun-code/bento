@@ -27,6 +27,8 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .m-name{font-size:15px;font-weight:600;margin-bottom:2px;color:#2C2C2A;line-height:1.3}
 .m-price{font-size:14px;color:#639922;font-weight:600}
 .m-tag{display:inline-block;font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:500;vertical-align:middle}
+.m-type-tag{display:inline-block;font-size:10px;border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:600;vertical-align:middle}
+.menu-section-hdr{font-size:11px;font-weight:700;color:#888780;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(0,0,0,0.08);margin-bottom:4px}
 .qty-row{display:flex;align-items:center;flex-shrink:0}
 .qty-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;font-weight:300;transition:background 0.1s}
 .qty-btn:active{background:#F5F4F0}
@@ -169,14 +171,18 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         </div>
         <div class="form-group">
           <label>付款方式 <span style="color:#A32D2D">*（必填）</span></label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <div class="pay-btn" id="pay-cash" onclick="selectPay('cash')" style="border-color:#3B6D11;background:#EAF3DE">
             <div class="pay-dot" id="pay-cash-dot" style="border-color:#3B6D11;background:#3B6D11"><div style="width:7px;height:7px;border-radius:50%;background:#fff"></div></div>
-            <div><div style="font-size:14px;font-weight:600;color:#27500A">現場付款</div><div style="font-size:11px;color:#639922">取餐時付現</div></div>
+            <div><div style="font-size:14px;font-weight:600;color:#27500A">現場付款</div></div>
           </div>
           <div class="pay-btn" id="pay-linepay" onclick="selectPay('linepay')">
             <div class="pay-dot" id="pay-linepay-dot"></div>
-            <div><div style="font-size:14px;font-weight:600;color:#2C2C2A">LINE Pay</div><div style="font-size:11px;color:#888780">線上轉帳</div></div>
+            <div><div style="font-size:14px;font-weight:600;color:#2C2C2A">LINE Pay</div></div>
+          </div>
+          <div class="pay-btn" id="pay-transfer" onclick="selectPay('transfer')">
+            <div class="pay-dot" id="pay-transfer-dot"></div>
+            <div><div style="font-size:14px;font-weight:600;color:#2C2C2A">匯款</div></div>
           </div>
         </div>
         <div id="linepay-note" style="display:none;margin-top:10px">
@@ -189,6 +195,27 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
             <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:2px">生根有機農場</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:14px">掃碼後輸入金額完成付款</div>
             <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.9)">付款完成請截圖傳給老闆確認 📸</div>
+          </div>
+        </div>
+        <div id="transfer-note" style="display:none;margin-top:10px">
+          <div style="background:#1A4DB5;border-radius:14px;padding:20px 16px;text-align:center">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.8);margin-bottom:4px">銀行匯款</div>
+            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:14px">請匯款至以下帳號</div>
+            <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:14px 16px;margin-bottom:12px;text-align:left">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:12px;color:rgba(255,255,255,0.75)">銀行</span>
+                <span style="font-size:14px;font-weight:600;color:#fff">中國信託商業銀行（822）</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:12px;color:rgba(255,255,255,0.75)">戶名</span>
+                <span style="font-size:14px;font-weight:600;color:#fff">蔡明憲</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;color:rgba(255,255,255,0.75)">帳號</span>
+                <span style="font-size:16px;font-weight:700;color:#fff;letter-spacing:1px">130-540-568-163</span>
+              </div>
+            </div>
+            <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.9)">匯款完成請截圖傳給老闆確認 📸</div>
           </div>
         </div>
       </div>
@@ -351,18 +378,23 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div>
                   <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">類別</div>
-                  <select id="new-item-type" style="width:100%;padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
+                  <select id="new-item-type" onchange="document.getElementById('new-item-price-row').style.display=this.value==='single'?'block':'none'" style="width:100%;padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
                     <option value="bento">便當類</option>
                     <option value="sauced">沙拉類</option>
+                    <option value="single">單點</option>
                   </select>
                 </div>
                 <div>
-                  <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">素食標籤</div>
-                  <select id="new-item-tag" style="width:100%;padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
-                    <option value="">無</option>
-                    <option value="素食">素食</option>
-                  </select>
+                  <div style="font-size:12px;color:#5F5E5A;margin-bottom:6px">標籤</div>
+                  <div style="display:flex;gap:12px;padding:8px 0">
+                    <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="new-item-tag-fv" style="accent-color:#3B6D11">方便素</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="new-item-tag-sp" style="accent-color:#A32D2D">微辣</label>
+                  </div>
                 </div>
+              </div>
+              <div id="new-item-price-row" style="display:none">
+                <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">售價 ($)</div>
+                <input id="new-item-price" type="number" min="1" placeholder="例如：50" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
               </div>
               <button onclick="addMenuItem()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增品項</button>
             </div>
@@ -546,7 +578,7 @@ async function sbUpsertSetting(key,value){
 let BOSS_EMAIL=''; // 從 Supabase settings 載入
 let currentRole=''; // 'boss' or 'helper'
 const DAYS_AHEAD=7;
-const TIMES=['11:30','12:00','12:30'];
+const TIMES=['11:30','12:00','12:30','13:00'];
 const WEEKDAYS=['日','一','二','三','四','五','六'];
 const SAUCES=['和風油醋醬','蜂蜜芥末醬','凱薩醬','不要醬'];
 const DEFAULT_MENU=[
@@ -562,13 +594,22 @@ const DEFAULT_MENU=[
   {id:'J',name:'墨西哥脆餅（明太子蝦蟹起司）',price:139,tag:'',active:true,type:'sauced'},
   {id:'K',name:'墨西哥脆餅（BBQ牛肉起司）',price:139,tag:'',active:true,type:'sauced'},
   {id:'L',name:'墨西哥脆餅（泰豬起司）',price:139,tag:'',active:true,type:'sauced'},
-  {id:'M',name:'墨西哥脆餅（羅勒野菇起司）',price:139,tag:'素食',active:true,type:'sauced'},
-  {id:'N',name:'素食便當',price:100,tag:'素食',active:true,type:'bento'},
+  {id:'M',name:'墨西哥脆餅（羅勒野菇起司）',price:139,tag:'方便素',active:true,type:'sauced'},
+  {id:'N',name:'素食便當',price:100,tag:'方便素',active:true,type:'bento'},
 ];
 function getMenu(){
   const saved=localStorage.getItem('bento_menu');
   const menu=saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_MENU));
-  menu.forEach(item=>{if(!item.type)item.type=BENTO_IDS.includes(item.id)?'bento':'sauced';});
+  menu.forEach(item=>{
+    if(!item.type)item.type=BENTO_IDS.includes(item.id)?'bento':'sauced';
+    // 統一 tag 為陣列
+    if(!Array.isArray(item.tag)){
+      const s=item.tag||'';
+      item.tag=s?[s==='素食'?'方便素':s]:[];
+    } else {
+      item.tag=item.tag.map(t=>t==='素食'?'方便素':t);
+    }
+  });
   return menu;
 }
 function isSauced(item){return item.type==='sauced';}
@@ -584,15 +625,18 @@ async function init(){
   document.getElementById('today-label').textContent=
     new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 
-  // 載入 boss email（不放在 code 裡）
-  try{
-    const bossEmail=await sbGetSetting('boss_email');
-    if(bossEmail)BOSS_EMAIL=bossEmail;
-  }catch(e){}
-
-  // 先用 localStorage 快取或預設值立即渲染，使用者不用等 Supabase
+  // 先用 localStorage 快取或預設值立即渲染，不等 Supabase（避免地點載入卡住）
   MENU=getMenu();
   buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
+
+  // 載入 boss email（不放在 code 裡），不阻塞 UI
+  try{
+    const bossEmail=await Promise.race([
+      sbGetSetting('boss_email'),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000))
+    ]);
+    if(bossEmail)BOSS_EMAIL=bossEmail;
+  }catch(e){}
 
   // 背景從 Supabase 拉最新設定，回來後靜默更新
   const timeout=ms=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));
@@ -794,6 +838,15 @@ function isValidPhone(val){
 function escapeHtml(str){
   return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+function parseOrderNote(raw){
+  if(!raw)return{text:'',addr:'',paid:false};
+  try{const j=JSON.parse(raw);if(j&&typeof j==='object'&&'text'in j)return{text:j.text||'',addr:j.addr||'',paid:!!j.paid};}catch(e){}
+  return{text:raw,addr:'',paid:false};
+}
+function serializeOrderNote(text,addr,paid){
+  if(!addr&&!paid)return text||'';
+  return JSON.stringify({text:text||'',addr:addr||'',paid:!!paid});
+}
 
 // 地點對應價格
 const LOCATION_PRICING={
@@ -819,6 +872,7 @@ function itemHasCarb(item){
   return !isSauced(item);
 }
 function getItemPrice(item){
+  if(item.type==='single')return item.price;
   const p=getLocationPricing();
   return isSauced(item)?p.saucedPrice:p.bentoPrice;
 }
@@ -860,6 +914,8 @@ function renderMenuSettings(){
           <span style="font-size:11px;background:${isSauced(item)?'#EAF3DE':'#F5F4F0'};color:${isSauced(item)?'#3B6D11':'#5F5E5A'};padding:1px 6px;border-radius:4px">${isSauced(item)?'沙拉類':'便當類'}</span>
         </div>
         <div style="display:flex;gap:6px">
+          <button onclick="moveMenuItem(${i},-1)" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#F5F4F0;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit" title="上移">↑</button>
+          <button onclick="moveMenuItem(${i},1)" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#F5F4F0;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit" title="下移">↓</button>
           <button onclick="saveMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:none;background:#3B6D11;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">儲存修改</button>
           <button onclick="toggleMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${item.active?'#FAEEDA':'#EAF3DE'};color:${item.active?'#BA7517':'#3B6D11'};font-size:12px;cursor:pointer;font-family:inherit">${item.active?'下架':'上架'}</button>
           <button onclick="deleteMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(163,45,45,0.2);background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer;font-family:inherit">刪除</button>
@@ -871,12 +927,17 @@ function renderMenuSettings(){
           <input id="mi-name-${i}" value="${item.name}" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
         </div>
         <div>
-          <div style="font-size:11px;color:#888780;margin-bottom:3px">素食標籤</div>
-          <select id="mi-tag-${i}" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit;background:#fff">
-            <option value="" ${!item.tag?'selected':''}>無</option>
-            <option value="素食" ${item.tag==='素食'?'selected':''}>素食</option>
-          </select>
+          <div style="font-size:11px;color:#888780;margin-bottom:6px">標籤</div>
+          <div style="display:flex;gap:12px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-fv-${i}" ${(Array.isArray(item.tag)?item.tag:[]).includes('方便素')?'checked':''} style="accent-color:#3B6D11">方便素</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-sp-${i}" ${(Array.isArray(item.tag)?item.tag:[]).includes('微辣')?'checked':''} style="accent-color:#A32D2D">微辣</label>
+          </div>
         </div>
+        ${item.type==='single'?`
+        <div>
+          <div style="font-size:11px;color:#888780;margin-bottom:3px">售價 ($)</div>
+          <input type="number" id="mi-price-${i}" value="${item.price}" min="1" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
+        </div>`:''}
         <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F5F4F0;border-radius:6px;margin-top:4px">
           <input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="width:15px;height:15px;cursor:pointer;accent-color:#3B6D11">
           <label for="carb-ck-${i}" style="font-size:12px;color:#2C2C2A;cursor:pointer">前台顯示澱粉選項</label>
@@ -892,9 +953,14 @@ function saveMenuItem(i){
   const tag=document.getElementById('mi-tag-'+i)?.value;
   const hasCarb=document.getElementById('carb-ck-'+i)?.checked;
   if(!name){alert('品項名稱不能為空');return;}
+  const tags=['方便素','微辣'].filter((_,idx)=>document.getElementById(idx===0?`mi-tag-fv-${i}`:`mi-tag-sp-${i}`)?.checked);
   menu[i].name=name;
-  menu[i].tag=tag;
+  menu[i].tag=tags;
   menu[i].hasCarb=hasCarb;
+  if(menu[i].type==='single'){
+    const p=parseInt(document.getElementById('mi-price-'+i)?.value)||menu[i].price;
+    if(p>0)menu[i].price=p;
+  }
   saveMenu(menu);
   MENU=getMenu();
   renderMenuSettings();
@@ -923,20 +989,32 @@ function deleteMenuItem(i){
   buildMenu();
 }
 
+function moveMenuItem(i,dir){
+  const menu=getMenu();
+  const type=menu[i].type;
+  let target=-1;
+  if(dir===-1){for(let j=i-1;j>=0;j--){if(menu[j].type===type){target=j;break;}}}
+  else{for(let j=i+1;j<menu.length;j++){if(menu[j].type===type){target=j;break;}}}
+  if(target===-1)return;
+  [menu[i],menu[target]]=[menu[target],menu[i]];
+  saveMenu(menu);MENU=getMenu();renderMenuSettings();buildMenu();
+}
+
 function addMenuItem(){
   const name=document.getElementById('new-item-name').value.trim();
   const type=document.getElementById('new-item-type').value;
-  const tag=document.getElementById('new-item-tag').value;
+  const tags=['方便素','微辣'].filter((_,i)=>document.getElementById(i===0?'new-item-tag-fv':'new-item-tag-sp')?.checked);
   if(!name){alert('請填寫品項名稱');return;}
   const menu=getMenu();
-  // 生成新 id
   const newId='Z'+Date.now().toString().slice(-4);
-  // 便當類 price=100，沙拉類 price=139（用於舊邏輯相容）
-  menu.push({id:newId, name, price:type==='sauced'?139:100, type, tag, active:true});
-  // 同步更新 BENTO_IDS / SAUCED_IDS（動態品項用 type 欄位判斷）
+  let price=type==='sauced'?139:type==='single'?(parseInt(document.getElementById('new-item-price')?.value)||50):100;
+  menu.push({id:newId,name,price,type,tag:tags,active:true});
   saveMenu(menu);
   MENU=getMenu();
   document.getElementById('new-item-name').value='';
+  const priceEl=document.getElementById('new-item-price');
+  if(priceEl)priceEl.value='';
+  ['new-item-tag-fv','new-item-tag-sp'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   renderMenuSettings();
   buildMenu();
   alert(`「${name}」已新增！`);
@@ -1075,22 +1153,33 @@ function buildMenu(){
   const g=document.getElementById('menu-grid');g.innerHTML='';
   const availTacos=getAvailableTacos();
   const tacoSetting=getTacoSettings();
-  // 控制前台提示：有任何脆餅被選就顯示
   const notice=document.getElementById('taco-notice');
+  if(notice)notice.style.display='none'; // 改為在沙拉類區塊內顯示
   const selectedTacos=TACO_IDS.filter(id=>cart[id]&&(cart[id].normal+cart[id].noCarb)>0);
-  if(notice){
-    notice.style.display='block';
-    notice.textContent=selectedTacos.length>=2
-      ?'🌮 墨西哥脆餅每日限選 2 種口味，已達兩種口味上限後無法加選第3種口味'
-      :'🌮 墨西哥脆餅每日限選 2 種口味';
-  }
-  MENU.filter(item=>item.active!==false).forEach(item=>{
+  const tacoNoticeText=selectedTacos.length>=2
+    ?'🌮 墨西哥脆餅每日限選 2 種口味，已達兩種口味上限後無法加選第3種口味'
+    :'🌮 墨西哥脆餅每日限選 2 種口味';
+
+  const TYPE_META={
+    bento:{label:'便當',bg:'#FAEEDA',color:'#BA7517',hdr:'便當類'},
+    sauced:{label:'沙拉',bg:'#EAF3DE',color:'#3B6D11',hdr:'沙拉類'},
+    single:{label:'單點',bg:'#EBF5FF',color:'#1A56DB',hdr:'單點'},
+  };
+  const activeItems=MENU.filter(item=>item.active!==false);
+  const sections=[
+    {type:'bento', items:activeItems.filter(i=>i.type==='bento')},
+    {type:'sauced',items:activeItems.filter(i=>i.type==='sauced')},
+    {type:'single',items:activeItems.filter(i=>i.type==='single')},
+  ].filter(s=>s.items.length>0);
+  const multiSection=sections.length>1;
+
+  function renderItem(item){
     const isTaco=TACO_IDS.includes(item.id);
     const isLocked=isTaco&&!availTacos.includes(item.id);
     const e=getEntry(item.id);
     const total=e.normal+e.noCarb;
     const sTotal=sauceTotalForId(item.id);
-    const sel=total>0;const is139=item.price===139;
+    const sel=total>0;const is139=isSauced(item);
     const sauceLeft=total-sTotal;
     const d=document.createElement('div');
     d.className='menu-card'+(sel?' selected':'')+(isLocked?' locked':'');
@@ -1098,6 +1187,8 @@ function buildMenu(){
     if(isLocked){
       d.style.cssText='background:#F5F4F0;border-color:rgba(0,0,0,0.08);opacity:0.6;cursor:not-allowed';
     }
+    const meta=TYPE_META[item.type]||TYPE_META.bento;
+    const typePill=`<span class="m-type-tag" style="background:${meta.bg};color:${meta.color}">${meta.label}</span>`;
 
     let sauceHTML='';
     if(is139&&sel){
@@ -1132,7 +1223,7 @@ function buildMenu(){
       </div>`:`
       <div class="menu-card-row">
         <div>
-          <div class="m-name">${item.name}${item.tag?`<span class="m-tag">${item.tag}</span>`:''}</div>
+          <div class="m-name">${item.name}${typePill}${(Array.isArray(item.tag)?item.tag:[]).map(t=>`<span class="m-tag" style="${t==='微辣'?'background:#FDECEA;color:#A32D2D':''}">${t}</span>`).join('')}</div>
           <div class="m-price">$${getItemPrice(item)}</div>
         </div>
         <div class="qty-row">
@@ -1162,6 +1253,23 @@ function buildMenu(){
         ${sauceHTML}
       </div>`:''}`;
     g.appendChild(d);
+  }
+
+  const hasTacos=activeItems.some(i=>TACO_IDS.includes(i.id));
+  sections.forEach(({type,items})=>{
+    if(multiSection){
+      const hdr=document.createElement('div');
+      hdr.className='menu-section-hdr';
+      hdr.textContent=TYPE_META[type]?.hdr||type;
+      g.appendChild(hdr);
+    }
+    if(type==='sauced'&&hasTacos){
+      const tn=document.createElement('div');
+      tn.style.cssText='font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:4px';
+      tn.textContent=tacoNoticeText;
+      g.appendChild(tn);
+    }
+    items.forEach(renderItem);
   });
 }
 
@@ -1300,16 +1408,20 @@ function selectLocation(val,el){
 }
 
 function selectPay(method){
-  selectedPay=method;const ic=method==='cash';
-  const ce=document.getElementById('pay-cash'),le=document.getElementById('pay-linepay');
-  const cd=document.getElementById('pay-cash-dot'),ld=document.getElementById('pay-linepay-dot');
-  ce.style.borderColor=ic?'#3B6D11':'rgba(0,0,0,0.12)';ce.style.background=ic?'#EAF3DE':'#fff';
-  cd.style.border=ic?'2px solid #3B6D11':'2px solid #888780';cd.style.background=ic?'#3B6D11':'transparent';
-  cd.innerHTML=ic?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':'';
-  le.style.borderColor=!ic?'#3B6D11':'rgba(0,0,0,0.12)';le.style.background=!ic?'#EAF3DE':'#fff';
-  ld.style.border=!ic?'2px solid #3B6D11':'2px solid #888780';ld.style.background=!ic?'#3B6D11':'transparent';
-  ld.innerHTML=!ic?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':'';
-  document.getElementById('linepay-note').style.display=!ic?'block':'none';
+  selectedPay=method;
+  const ids=['cash','linepay','transfer'];
+  ids.forEach(m=>{
+    const btn=document.getElementById('pay-'+m);
+    const dot=document.getElementById('pay-'+m+'-dot');
+    const active=m===method;
+    btn.style.borderColor=active?'#3B6D11':'rgba(0,0,0,0.12)';
+    btn.style.background=active?'#EAF3DE':'#fff';
+    dot.style.border=active?'2px solid #3B6D11':'2px solid #888780';
+    dot.style.background=active?'#3B6D11':'transparent';
+    dot.innerHTML=active?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':'';
+  });
+  document.getElementById('linepay-note').style.display=method==='linepay'?'block':'none';
+  document.getElementById('transfer-note').style.display=method==='transfer'?'block':'none';
 }
 
 function updateCart(){
@@ -1484,7 +1596,7 @@ async function submitOrder(){
     <div class="order-info-row"><span class="k">取餐日期</span><span class="v">${dateLabel}</span></div>
     <div class="order-info-row"><span class="k">取餐時間</span><span class="v">${order.time}</span></div>
     <div class="order-info-row"><span class="k">取餐地點</span><span class="v">${order.location}</span></div>
-    <div class="order-info-row"><span class="k">付款方式</span><span class="v">${order.payMethod==='linepay'?'LINE Pay':'現場付款'}</span></div>
+    <div class="order-info-row"><span class="k">付款方式</span><span class="v">${order.payMethod==='linepay'?'LINE Pay':order.payMethod==='transfer'?'匯款':'現場付款'}</span></div>
     <div class="order-info-row" style="align-items:flex-start"><span class="k">訂購內容</span><span class="v" style="text-align:right;line-height:2">${items.map(i=>{
       let dl=[];
       if(i.normal>0)dl.push(`要澱粉×${i.normal}`);
@@ -2102,8 +2214,8 @@ async function renderOrders(){
       <div style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:10px">📦 備餐摘要 — ${escapeHtml(locFilter)}</div>
       ${active.map(o=>{
         const qty=(o.items||[]).reduce((s,i)=>s+i.qty,0);
-        const pay=o.payMethod==='linepay'?'LINE Pay':'現場付款';
-        const payColor=o.payMethod==='linepay'?'#00B900':'#BA7517';
+        const pay=o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'匯款':'現場付款';
+        const payColor=o.payMethod==='linepay'?'#00B900':o.payMethod==='transfer'?'#1A4DB5':'#BA7517';
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(59,109,17,0.15)">
           <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:14px;font-weight:600;color:#2C2C2A">👤 ${escapeHtml(o.name)}</span>
@@ -2174,7 +2286,7 @@ function renderOrderCard(o){
     </div>
     <div class="oc-meta">👤 ${escapeHtml(o.name)}｜📞 ${escapeHtml(o.phone)}</div>
     <div class="oc-meta">📅 ${escapeHtml(o.dateLabel||o.date)}｜🕐 ${escapeHtml(o.time)}</div>
-    <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':'現場付款'}</div>
+    <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'匯款':'現場付款'}</div>
     <div class="oc-items">${(o.items||[]).map(i=>{
       let parts=[`<strong>${i.name}</strong> ×${i.qty}`];
       if(i.normal>0)parts.push(`要澱粉×${i.normal}`);
@@ -2183,7 +2295,12 @@ function renderOrderCard(o){
       if(i.unitPrice&&i.unitPrice<i.origPrice)parts.push(`<span style="color:#3B6D11">$${i.unitPrice}/個</span>`);
       return parts.join(' · ');
     }).join('<br>')}</div>
-    ${o.note?`<div style="font-size:12px;color:#888780;font-style:italic;margin-bottom:8px">備註：${escapeHtml(o.note)}</div>`:''}
+    ${(()=>{const n=parseOrderNote(o.note);const parts=[];
+      if(n.text)parts.push(`<div style="font-size:12px;color:#3D3C38;background:#F5F4F0;border-radius:6px;padding:5px 10px;margin-bottom:4px">📝 ${escapeHtml(n.text)}</div>`);
+      if(n.addr)parts.push(`<div style="font-size:12px;color:#1A4DB5;background:#EBF5FF;border-radius:6px;padding:5px 10px;margin-bottom:4px">🚗 外送：${escapeHtml(n.addr)}</div>`);
+      if(n.paid)parts.push(`<span style="display:inline-block;font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-weight:600;margin-bottom:4px">✓ 已付款</span>`);
+      return parts.length?`<div style="margin-bottom:6px">${parts.join('')}</div>`:'';
+    })()}
     <div class="oc-footer">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         ${o.status==='new'?`
@@ -2254,15 +2371,25 @@ async function startEdit(id){
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">取餐時間</div>
         <select id="e-time" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">${timeOpts}</select></div>
     </div>
+    ${(()=>{const n=parseOrderNote(o.note);return `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
       <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">付款方式</div>
         <select id="e-pay" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
           <option value="cash"${o.payMethod==='cash'?'selected':''}>現場付款</option>
           <option value="linepay"${o.payMethod==='linepay'?'selected':''}>LINE Pay</option>
+          <option value="transfer"${o.payMethod==='transfer'?'selected':''}>匯款</option>
         </select></div>
-      <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">備註</div>
-        <input id="e-note" value="${escapeHtml(o.note||'')}" placeholder="選填" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
+      <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">客人備註</div>
+        <input id="e-note" value="${escapeHtml(n.text)}" placeholder="選填" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
     </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:8px">
+      <div><div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">🚗 外送地址</div>
+        <input id="e-addr" value="${escapeHtml(n.addr)}" placeholder="選填（外送地址）" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit"></div>
+      <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:#EAF3DE;border-radius:8px;white-space:nowrap;cursor:pointer" onclick="document.getElementById('e-paid').click()">
+        <input type="checkbox" id="e-paid" ${n.paid?'checked':''} style="width:16px;height:16px;accent-color:#3B6D11;cursor:pointer">
+        <label for="e-paid" style="font-size:13px;color:#27500A;font-weight:600;cursor:pointer">已付款</label>
+      </div>
+    </div>`;})()}
     <div style="font-size:12px;color:#5F5E5A;margin-bottom:6px">餐點內容</div>
     <div id="e-items" style="margin-bottom:10px">${renderEditItems(o)}</div>
     <div style="display:flex;gap:8px">
@@ -2362,7 +2489,10 @@ async function saveEdit(id){
   const date=document.getElementById('e-date').value;
   const time=document.getElementById('e-time').value;
   const pay=document.getElementById('e-pay').value;
-  const note=document.getElementById('e-note').value.trim();
+  const noteText=document.getElementById('e-note').value.trim();
+  const addr=document.getElementById('e-addr')?.value.trim()||'';
+  const paid=document.getElementById('e-paid')?.checked||false;
+  const note=serializeOrderNote(noteText,addr,paid);
   if(!name){alert('請填寫姓名');return;}
   if(!isValidPhone(phone)){alert('電話格式：0912-345-678');return;}
 
