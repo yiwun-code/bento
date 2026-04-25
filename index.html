@@ -381,18 +381,18 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
             <div style="font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:10px">＋ 新增品項</div>
             <div style="display:flex;flex-direction:column;gap:8px">
               <input id="new-item-name" type="text" placeholder="品項名稱（例如：照燒雞腿）" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <div>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div style="flex:0 0 auto">
                   <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">類別</div>
-                  <select id="new-item-type" onchange="document.getElementById('new-item-price-row').style.display=this.value==='single'?'block':'none';document.getElementById('new-item-pricing-hint').style.display=this.value==='single'?'none':'block'" style="width:100%;padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
+                  <select id="new-item-type" onchange="document.getElementById('new-item-price-row').style.display=this.value==='single'?'block':'none';document.getElementById('new-item-pricing-hint').style.display=this.value==='single'?'none':'block'" style="padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
                     <option value="bento">便當類</option>
                     <option value="sauced">沙拉類</option>
                     <option value="single">單點</option>
                   </select>
                 </div>
-                <div>
-                  <div style="font-size:12px;color:#5F5E5A;margin-bottom:6px">標籤</div>
-                  <div style="display:flex;gap:12px;padding:8px 0">
+                <div style="flex:0 0 auto">
+                  <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">標籤</div>
+                  <div style="display:flex;gap:12px;height:38px;align-items:center">
                     <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="new-item-tag-fv" style="accent-color:#3B6D11">方便素</label>
                     <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="new-item-tag-sp" style="accent-color:#A32D2D">微辣</label>
                   </div>
@@ -403,7 +403,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
                 <input id="new-item-price" type="number" min="1" placeholder="例如：50" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
               </div>
               <div id="new-item-pricing-hint" style="display:block;font-size:12px;color:#639922;background:#EAF3DE;border-radius:7px;padding:8px 12px">
-                💡 便當／沙拉類的價格由「價格折扣」分頁的地點設定決定，新增後不需在此設定售價
+                💡 便當／沙拉類的價格由「地點與定價」分頁的地點設定決定，新增後不需在此設定售價
               </div>
               <button onclick="addMenuItem()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增品項</button>
             </div>
