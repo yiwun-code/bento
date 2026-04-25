@@ -1711,7 +1711,7 @@ async function submitOrder(){
   // 寫入 Supabase
   const saveResult=await sbUpsertOrder(order);
   if(!saveResult){alert('訂單送出失敗，請稍後再試');return;}
-  document.getElementById('success-sub').textContent=`感謝您的訂購 😊 訂單編號 ${order.id}｜老闆收到後會備餐，請記得準時取餐～`;
+  document.getElementById('success-sub').innerHTML=`感謝您的訂購 😊 訂單編號 ${order.id}<br>老闆收到後會備餐，請記得準時取餐～`;
   document.getElementById('success-info').innerHTML=`
     <div class="order-info-row"><span class="k">取餐日期</span><span class="v">${dateLabel}</span></div>
     <div class="order-info-row"><span class="k">取餐時間</span><span class="v">${order.time}</span></div>
