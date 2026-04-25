@@ -972,18 +972,15 @@ async function resetTacoSettings(){
   renderTacoSettings();
   alert('已清除，全部口味開放');
 }
-function renderMenuSettings(){
-  const box=document.getElementById('menu-settings');
-  if(!box)return;
-  const menu=getMenu();
-  box.innerHTML=menu.map((item,i)=>`
-    <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:12px 14px;margin-bottom:8px;opacity:${item.active?1:0.5}">
+function menuItemCardHTML(item,i){
+  const tags=Array.isArray(item.tag)?item.tag:(item.tag?[item.tag]:[]);
+  return `
+    <div data-menu-index="${i}" style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:12px 14px;margin-bottom:8px;opacity:${item.active?1:0.5}">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px">
           <span class="drag-handle" title="拖曳排序">⠿</span>
           <span style="font-size:13px;font-weight:600;color:#2C2C2A">${item.name}</span>
-          ${item.tag?`<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:1px 6px;border-radius:4px">${item.tag}</span>`:''}
-          <span style="font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;background:${item.type==='sauced'?'#EAF3DE':item.type==='single'?'#EBF5FF':'#FAEEDA'};color:${item.type==='sauced'?'#3B6D11':item.type==='single'?'#1A56DB':'#BA7517'}">${item.type==='sauced'?'沙拉類':item.type==='single'?'單點':'便當類'}</span>
+          ${tags.map(t=>`<span style="font-size:11px;background:${t==='微辣'?'#FDECEA':'#EAF3DE'};color:${t==='微辣'?'#A32D2D':'#3B6D11'};padding:1px 6px;border-radius:4px">${t}</span>`).join('')}
         </div>
         <div style="display:flex;gap:6px">
           <button onclick="saveMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:none;background:#3B6D11;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">儲存修改</button>
@@ -991,43 +988,68 @@ function renderMenuSettings(){
           <button onclick="deleteMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(163,45,45,0.2);background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer;font-family:inherit">刪除</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div>
+      <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
           <div style="font-size:11px;color:#888780;margin-bottom:3px">品項名稱</div>
           <input id="mi-name-${i}" value="${item.name}" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
         </div>
-        <div>
-          <div style="font-size:11px;color:#888780;margin-bottom:6px">標籤</div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-fv-${i}" ${(Array.isArray(item.tag)?item.tag:[]).includes('方便素')?'checked':''} style="accent-color:#3B6D11">方便素</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-sp-${i}" ${(Array.isArray(item.tag)?item.tag:[]).includes('微辣')?'checked':''} style="accent-color:#A32D2D">微辣</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="accent-color:#3B6D11">澱粉選項</label>
-          </div>
-        </div>
-        ${item.type==='single'?`
-        <div>
+        ${item.type==='single'?`<div style="flex:0 0 80px">
           <div style="font-size:11px;color:#888780;margin-bottom:3px">售價 ($)</div>
           <input type="number" id="mi-price-${i}" value="${item.price}" min="1" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
         </div>`:''}
+        <div style="flex:0 0 auto;padding-top:18px">
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-fv-${i}" ${tags.includes('方便素')?'checked':''} style="accent-color:#3B6D11">方便素</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-sp-${i}" ${tags.includes('微辣')?'checked':''} style="accent-color:#A32D2D">微辣</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="accent-color:#3B6D11">澱粉選項</label>
+          </div>
+        </div>
       </div>
+    </div>`;
+}
 
-    </div>`).join('');
-  if(typeof Sortable!=='undefined'){
-    Sortable.create(box,{
-      handle:'.drag-handle',
-      animation:150,
-      ghostClass:'sortable-ghost',
-      onEnd(evt){
-        if(evt.oldIndex===evt.newIndex)return;
-        const m=getMenu();
-        const moved=m.splice(evt.oldIndex,1)[0];
-        m.splice(evt.newIndex,0,moved);
-        saveMenu(m);MENU=getMenu();
-        buildMenu();
-        renderMenuSettings();
-      }
+function renderMenuSettings(){
+  const box=document.getElementById('menu-settings');
+  if(!box)return;
+  const menu=getMenu();
+  const TYPE_SECTIONS=[
+    {type:'bento', label:'便當類'},
+    {type:'sauced',label:'沙拉類'},
+    {type:'single',label:'單點'},
+  ];
+  box.innerHTML='';
+  TYPE_SECTIONS.forEach(({type,label})=>{
+    const typeItems=menu.map((item,i)=>({item,i})).filter(({item})=>item.type===type);
+    if(!typeItems.length)return;
+    const hdr=document.createElement('div');
+    hdr.className='menu-section-hdr';
+    hdr.textContent=label;
+    box.appendChild(hdr);
+    const section=document.createElement('div');
+    section.dataset.sectionType=type;
+    typeItems.forEach(({item,i})=>{
+      const wrap=document.createElement('div');
+      wrap.innerHTML=menuItemCardHTML(item,i);
+      section.appendChild(wrap.firstElementChild);
     });
-  }
+    box.appendChild(section);
+    if(typeof Sortable!=='undefined'){
+      Sortable.create(section,{
+        handle:'.drag-handle',
+        animation:150,
+        ghostClass:'sortable-ghost',
+        onEnd(evt){
+          if(evt.oldIndex===evt.newIndex)return;
+          const m=getMenu();
+          // Read new DOM order across all sections to reconstruct full menu order
+          const allCards=box.querySelectorAll('[data-menu-index]');
+          const newOrder=Array.from(allCards).map(el=>m[parseInt(el.dataset.menuIndex)]);
+          saveMenu(newOrder);MENU=getMenu();
+          buildMenu();renderMenuSettings();
+        }
+      });
+    }
+  });
 }
 
 function saveMenuItem(i){
