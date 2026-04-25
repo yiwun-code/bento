@@ -152,6 +152,9 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <label>電話 <span style="color:#A32D2D">*（必填）</span></label>
         <input id="f-phone" type="tel" placeholder="0912-345-678" autocomplete="off" maxlength="12" oninput="formatPhone(this);updateSubmitBtn()" onchange="formatPhone(this);updateSubmitBtn()" onblur="formatPhone(this);updateSubmitBtn()" inputmode="numeric">
       </div>
+      <div class="sec-title">取餐日期 <span style="color:#A32D2D">*（必填）</span></div>
+      <div class="date-grid" id="date-grid"></div>
+      <div class="divider"></div>
       <div class="form-group">
         <label>取餐地點 <span style="color:#A32D2D">*（必填）</span></label>
         <div id="location-group"><div style="font-size:13px;color:#888780;padding:8px 0">📍 載入取餐地點中...</div></div>
@@ -162,9 +165,6 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <div class="sec-title">選擇餐點 <span style="color:#A32D2D">*（必填）</span></div>
         <div id="taco-notice" style="display:none;font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:10px">🌮 墨西哥脆餅每日限選 2 種口味，已達兩種口味上限後無法加選第三種口味</div>
         <div class="menu-grid" id="menu-grid"></div>
-        <div class="divider"></div>
-        <div class="sec-title">取餐日期 <span style="color:#A32D2D">*（必填）</span></div>
-        <div class="date-grid" id="date-grid"></div>
         <div class="divider"></div>
         <div class="sec-title">取餐時間 <span style="color:#A32D2D">*（必填）</span></div>
         <div class="time-grid" id="time-grid"></div>
@@ -242,7 +242,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <button style="flex:0 0 auto;background:transparent;color:#3B6D11;border:2px solid #3B6D11;border-radius:12px;padding:15px 16px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="clearCart()">清空餐點選項</button>
         <button class="btn-submit" id="btn-submit" style="flex:1" onclick="document.getElementById('btn-submit').dataset.ready!=='1'?scrollToMissing():submitOrder()">送出訂單</button>
       </div>
-      <div class="submit-hint" id="submit-hint">請先選擇取餐地點</div>
+      <div class="submit-hint" id="submit-hint">請先選擇取餐日期</div>
     </div>
   </div>
   <div id="view-success" style="display:none">
@@ -1487,10 +1487,33 @@ function buildDates(){
     count++;offset++;
   }
 }
+async function loadTacoFlavorsForDate(iso){
+  // 查那天已有訂單裡出現過哪些脆餅口味，≥2種就鎖定
+  if(localStorage.getItem('taco_flavors')!==null)return; // 老闆有手動設定，不覆蓋
+  try{
+    const {data,error}=await sbTimeout(
+      _sbAnon.from('orders').select('items').eq('date',iso).neq('status','cancelled')
+    );
+    if(error||!data)return;
+    const tacoSet=new Set();
+    data.forEach(o=>(o.items||[]).forEach(i=>{if(TACO_IDS.includes(i.id))tacoSet.add(i.id);}));
+    if(tacoSet.size>=2){
+      localStorage.setItem('taco_flavors_auto',JSON.stringify([...tacoSet]));
+    } else {
+      localStorage.removeItem('taco_flavors_auto');
+    }
+  }catch(e){}
+}
+
 function selectDate(iso){
   selectedDate=iso;
   document.querySelectorAll('.date-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('db-'+iso)?.classList.add('on');
+  // 查那天的脆餅口味，查完重建菜單（如果已選地點）
+  loadTacoFlavorsForDate(iso).then(()=>{if(selectedLocation)buildMenu();});
+  // 顯示菜單區塊（需要日期和地點都選了）
+  const ms=document.getElementById('menu-section');
+  if(ms)ms.style.display=(selectedLocation?'block':'none');
   updateSubmitBtn();
 }
 
@@ -1524,9 +1547,9 @@ function selectLocation(val,el){
   const dot=el.querySelector('.loc-dot');
   dot.style.border='2px solid #3B6D11';dot.style.background='#3B6D11';
   dot.innerHTML='<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>';
-  // 顯示菜單區塊
+  // 兩者都選了才顯示菜單區塊
   const ms=document.getElementById('menu-section');
-  if(ms)ms.style.display='block';
+  if(ms)ms.style.display=(selectedDate?'block':'none');
   // 重建菜單（更新價格）並清空購物車
   cart={};
   buildMenu();buildDates();buildTimes();updateCart();
@@ -1637,9 +1660,9 @@ function updateSubmitBtn(){
   const phone=phoneEl.value.trim();
   const phoneOk=isValidPhone(phone);
   let msg='';
-  if(!selectedLocation) msg='請先選擇取餐地點';
+  if(!selectedDate) msg='請先選擇取餐日期';
+  else if(!selectedLocation) msg='請先選擇取餐地點';
   else if(!hasItems) msg='請先選擇餐點';
-  else if(!selectedDate) msg='請選擇取餐日期';
   else if(!selectedTime) msg='請選擇取餐時間';
   else if(!name) msg='請填寫姓名';
   else if(!phone) msg='請填寫電話';
@@ -1672,6 +1695,7 @@ function scrollToMissing(){
   if(!name){scrollTo('f-name');document.getElementById('f-name')?.focus();return;}
   const phone=document.getElementById('f-phone')?.value.trim();
   if(!phone||!isValidPhone(phone)){scrollTo('f-phone');document.getElementById('f-phone')?.focus();return;}
+  if(!selectedDate){scrollTo('date-grid');return;}
   if(!selectedLocation){scrollTo('location-group');return;}
   if(Object.keys(cart).length===0){scrollTo('menu-section');return;}
   // 醬料未選完 → 捲到該品項
@@ -1692,7 +1716,6 @@ function scrollToMissing(){
       }
     }
   }
-  if(!selectedDate){scrollTo('date-grid',120);return;}
   if(!selectedTime){scrollTo('time-grid',120);return;}
 }
 
