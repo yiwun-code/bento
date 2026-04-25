@@ -730,7 +730,7 @@ function renderAdminLocations(){
           ${!isActive?'<span style="font-size:11px;color:#888780;background:#E0DFD9;padding:2px 7px;border-radius:4px">已下架</span>':''}
         </div>
         <div style="display:flex;gap:6px">
-          <button data-lockey="${escapeHtml(key)}" onclick="showPauseCalendar(this.dataset.lockey)" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:12px;cursor:pointer;font-family:inherit">📅 暫停</button>
+          <button data-lockey="${escapeHtml(key)}" onclick="showPauseCalendar(this.dataset.lockey)" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:12px;cursor:pointer;font-family:inherit">📅 設定休息日</button>
           <button onclick="toggleLocation(${i})" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${isActive?'#FAEEDA':'#EAF3DE'};color:${isActive?'#BA7517':'#3B6D11'};font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">${isActive?'下架':'上架'}</button>
           <button onclick="removeLocation(${i})" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(163,45,45,0.2);background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer;font-family:inherit">刪除</button>
         </div>
@@ -862,6 +862,9 @@ function renderPauseCalendar(locKey){
 
 function removeLocation(i){
   const locs=getLocations();
+  const loc=locs[i];
+  const label=loc?`${loc.area} ${loc.name}`:'此地點';
+  if(!confirm(`確定要刪除「${label}」嗎？\n刪除後無法復原。`))return;
   locs.splice(i,1);
   saveLocations(locs);
   renderAdminLocations();
@@ -1220,12 +1223,17 @@ function onTacoChange(){
   }
 }
 
-// 前台：取得目前可選的墨西哥脆餅 id（單人限制：同訂單最多 2 種）
+// 前台：取得目前可選的墨西哥脆餅 id
+// 限制 1：每日設定（老闆手動或跨訂單自動推導）決定今日提供哪些口味
+// 限制 2：同一筆訂單最多選 2 種口味
 function getAvailableTacos(){
-  // 找出購物車內已選的脆餅種類
+  const tacoSetting=getTacoSettings();
+  // 今日可供的口味池（老闆有設定就照設定，否則全開放）
+  const dailyPool=tacoSetting?TACO_IDS.filter(id=>tacoSetting.includes(id)):TACO_IDS;
+  // 購物車內已選的脆餅種類
   const selectedTacos=TACO_IDS.filter(id=>cart[id]&&(cart[id].normal+cart[id].noCarb)>0);
-  if(selectedTacos.length<2) return TACO_IDS; // 還不到2種，全開放
-  return selectedTacos; // 已選2種，只開放這2種
+  if(selectedTacos.length<2) return dailyPool; // 還不到2種，開放今日池子
+  return selectedTacos; // 已選2種，只允許這2種（一定在 dailyPool 內）
 }
 
 
@@ -1373,8 +1381,7 @@ function buildMenu(){
 function chgQty(id,type,delta,e){
   e&&e.stopPropagation();
   const availTacos=getAvailableTacos();
-  const tacoSetting=getTacoSettings();
-  if(TACO_IDS.includes(id)&&tacoSetting&&!availTacos.includes(id))return;
+  if(TACO_IDS.includes(id)&&!availTacos.includes(id))return;
   const entry=getEntry(id);
   const oldTotal=entry.normal+entry.noCarb;
 
