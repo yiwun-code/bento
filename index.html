@@ -367,9 +367,8 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
       <!-- 設定子 tab 列 -->
       <div id="settings-subtab-bar" style="display:flex;background:#F5F4F0;border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;overflow-x:auto;position:sticky;z-index:9">
         <button id="stab-menu" onclick="switchSettingsTab('menu')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#3B6D11;background:transparent;border:none;border-bottom:2.5px solid #3B6D11;cursor:pointer;font-family:inherit;white-space:nowrap">菜單管理</button>
-        <button id="stab-price" onclick="switchSettingsTab('price')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#888780;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap">價格與折扣</button>
         <button id="stab-taco" onclick="switchSettingsTab('taco')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#888780;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap">脆餅口味</button>
-        <button id="stab-location" onclick="switchSettingsTab('location')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#888780;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap">地點</button>
+        <button id="stab-location" onclick="switchSettingsTab('location')" style="padding:10px 16px;font-size:13px;font-weight:600;color:#888780;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap">地點與定價</button>
       </div>
 
       <!-- 菜單管理 -->
@@ -412,14 +411,6 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         </div>
       </div>
 
-      <!-- 價格與折扣 -->
-      <div id="stab-content-price" class="container" style="display:none;padding-bottom:24px">
-        <div id="boss-only-pricing">
-          <div style="font-size:13px;color:#888780;margin-bottom:12px">修改後按「儲存價格」，新訂單即套用新價格，已成立訂單不受影響</div>
-          <div id="pricing-settings"></div>
-          <button onclick="savePricingSettings()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px">儲存價格</button>
-        </div>
-      </div>
 
       <!-- 脆餅口味 -->
       <div id="stab-content-taco" class="container" style="display:none;padding-bottom:24px">
@@ -435,11 +426,12 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         </div>
       </div>
 
-      <!-- 地點 -->
+      <!-- 地點與定價 -->
       <div id="stab-content-location" class="container" style="display:none;padding-bottom:24px">
         <div id="boss-only-locations">
-          <div style="font-size:13px;color:#888780;margin-bottom:12px">上架中的地點會顯示在前台，下架後前台不顯示但舊訂單資料不受影響</div>
+          <div style="font-size:13px;color:#888780;margin-bottom:12px">每個地點可設定上架狀態、便當/沙拉價格及折扣規則。修改後按「儲存地點設定」生效</div>
           <div id="admin-locations"></div>
+          <button onclick="saveLocationSettings()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;margin-bottom:8px">儲存地點設定</button>
           <div id="new-loc-form" style="display:none;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:14px;margin-top:8px">
             <div style="font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:10px">新增地點</div>
             <div style="display:flex;flex-direction:column;gap:8px">
@@ -723,18 +715,55 @@ function buildLocations(){
 
 function renderAdminLocations(){
   const locs=getLocations();
+  const data=getPricingData();
   const g=document.getElementById('admin-locations');
+  if(!g)return;
   if(!locs.length){g.innerHTML='<div style="font-size:13px;color:#888780;padding:8px 0">尚未設定地點</div>';return;}
   g.innerHTML=locs.map((loc,i)=>{
     const isActive=loc.active!==false;
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${isActive?'#fff':'#F5F4F0'};border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:6px;opacity:${isActive?1:0.6}">
-      <div>
-        <span style="font-size:14px;font-weight:600;color:${isActive?'#2C2C2A':'#888780'}">${escapeHtml(loc.area)}　${escapeHtml(loc.name)}</span>
-        ${!isActive?'<span style="font-size:11px;color:#888780;margin-left:8px;background:#E0DFD9;padding:2px 7px;border-radius:4px">已下架</span>':''}
+    const key=`${loc.area} ${loc.name}`;
+    const p=data[key]||{bentoPrice:115,saucedPrice:139,discount:false,discountMinQty:3,discountBento:110,discountSauced:135};
+    return `<div style="background:${isActive?'#fff':'#F5F4F0'};border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:14px;margin-bottom:10px;opacity:${isActive?1:0.75}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px;font-weight:600;color:${isActive?'#2C2C2A':'#888780'}">📍 ${escapeHtml(key)}</span>
+          ${!isActive?'<span style="font-size:11px;color:#888780;background:#E0DFD9;padding:2px 7px;border-radius:4px">已下架</span>':''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button data-lockey="${escapeHtml(key)}" onclick="showPauseCalendar(this.dataset.lockey)" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:12px;cursor:pointer;font-family:inherit">📅 暫停</button>
+          <button onclick="toggleLocation(${i})" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${isActive?'#FAEEDA':'#EAF3DE'};color:${isActive?'#BA7517':'#3B6D11'};font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">${isActive?'下架':'上架'}</button>
+          <button onclick="removeLocation(${i})" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(163,45,45,0.2);background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer;font-family:inherit">刪除</button>
+        </div>
       </div>
-      <div style="display:flex;gap:6px">
-        <button data-lockey="${escapeHtml(loc.area+' '+loc.name)}" onclick="showPauseCalendar(this.dataset.lockey)" style="padding:5px 12px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit">📅 暫停日期</button>
-        <button onclick="toggleLocation(${i})" style="padding:5px 12px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${isActive?'#FAEEDA':'#EAF3DE'};color:${isActive?'#BA7517':'#3B6D11'};font-size:13px;cursor:pointer;font-family:inherit;font-weight:500">${isActive?'下架':'上架'}</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">便當價格 ($)</div>
+          <input type="number" id="p-bento-${escapeHtml(key)}" value="${p.bentoPrice}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
+        </div>
+        <div>
+          <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">沙拉價格 ($)</div>
+          <input type="number" id="p-sauced-${escapeHtml(key)}" value="${p.saucedPrice}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
+        </div>
+      </div>
+      <div style="padding:10px;background:#F5F4F0;border-radius:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:0" id="p-disc-wrap-${escapeHtml(key)}">
+          <input type="checkbox" id="p-disc-${escapeHtml(key)}" ${p.discount?'checked':''} onchange="toggleDiscountFields('${escapeHtml(key)}')" style="width:16px;height:16px;cursor:pointer;accent-color:#3B6D11">
+          <label for="p-disc-${escapeHtml(key)}" style="font-size:13px;font-weight:500;color:#2C2C2A;cursor:pointer">滿額折扣</label>
+        </div>
+        <div id="p-disc-fields-${escapeHtml(key)}" style="display:${p.discount?'grid':'none'};grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+          <div>
+            <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">起折數量（個）</div>
+            <input type="number" id="p-minqty-${escapeHtml(key)}" value="${p.discountMinQty||3}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
+          </div>
+          <div>
+            <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">便當折後價 ($)</div>
+            <input type="number" id="p-dbento-${escapeHtml(key)}" value="${p.discountBento||p.bentoPrice}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
+          </div>
+          <div>
+            <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">沙拉折後價 ($)</div>
+            <input type="number" id="p-dsauced-${escapeHtml(key)}" value="${p.discountSauced||p.saucedPrice}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
+          </div>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1145,11 +1174,23 @@ function savePricingSettings(){
   alert('價格已儲存！');
 }
 
-function resetPricingSettings(){
-  if(!confirm('確定還原所有地點為預設價格？'))return;
-  localStorage.removeItem('bento_pricing');
-  renderPricingSettings();
-  alert('已還原預設價格');
+function saveLocationSettings(){
+  // 儲存定價
+  const data=getPricingData();
+  const locs=getLocations();
+  locs.forEach(l=>{
+    const key=l.area+' '+l.name;
+    const bento=parseInt(document.getElementById('p-bento-'+key)?.value)||115;
+    const sauced=parseInt(document.getElementById('p-sauced-'+key)?.value)||139;
+    const disc=document.getElementById('p-disc-'+key)?.checked||false;
+    const minQty=parseInt(document.getElementById('p-minqty-'+key)?.value)||3;
+    const dbento=parseInt(document.getElementById('p-dbento-'+key)?.value)||bento;
+    const dsauced=parseInt(document.getElementById('p-dsauced-'+key)?.value)||sauced;
+    data[key]={bentoPrice:bento,saucedPrice:sauced,discount:disc,discountMinQty:minQty,discountBento:dbento,discountSauced:dsauced};
+  });
+  savePricingData(data);
+  sbUpsertSetting('pricing',data);
+  alert('地點設定已儲存！');
 }
 
 function renderTacoSettings(){
@@ -2089,7 +2130,7 @@ async function renderRevenue(){
 let currentSettingsTab='menu';
 function switchSettingsTab(tab){
   currentSettingsTab=tab;
-  ['menu','price','taco','location'].forEach(t=>{
+  ['menu','taco','location'].forEach(t=>{
     const btn=document.getElementById('stab-'+t);
     const panel=document.getElementById('stab-content-'+t);
     const active=t===tab;
@@ -2234,7 +2275,6 @@ async function renderDash(){
 
   renderAdminLocations();
   renderMenuSettings();
-  renderPricingSettings();
   renderTacoSettings();
   renderLocFilter();
   renderOrders();
@@ -2363,7 +2403,7 @@ function renderOrderCard(o){
     <div class="oc-head">
       <div><div class="oc-id">${o.id}</div><div class="oc-time">${o.createdAt} 下單</div></div>
       <div style="display:flex;align-items:center;gap:6px">
-        ${_n.paid?`<span class="badge b-done">✓ 已付款</span>`:''}
+        ${_n.paid?`<span class="badge b-done paid-badge">已付款</span>`:''}
         <span class="badge ${o.status==='new'?'b-new':o.status==='ready'?'b-ready':o.status==='done'?'b-done':'b-cancel'}">${o.status==='new'?'待處理':o.status==='ready'?'已備餐':o.status==='done'?'已取餐':'已取消'}</span>
       </div>
     </div>
@@ -2398,7 +2438,7 @@ function renderOrderCard(o){
           <button class="btn-act btn-restore" onclick="setStatus('${o.id}','new')">還原</button>
         `}
         <button class="btn-act" id="paid-btn-${o.id}" onclick="togglePaid('${o.id}')" style="${_n.paid?'background:#EAF3DE;color:#3B6D11;border:1px solid rgba(59,109,17,0.3)':'background:#fff;color:#888780;border:1px solid rgba(0,0,0,0.15)'}">
-          ${_n.paid?'✓ 已付款':'💰 標記已付款'}
+          ${_n.paid?'已付款':'💰 標記已付款'}
         </button>
       </div>
       <span class="oc-total">合計 $${o.total}</span>
@@ -2419,7 +2459,7 @@ async function togglePaid(id){
     // 用 getElementById 避免 id 含 # 導致 CSS selector 爆掉
     const btn=document.getElementById('paid-btn-'+id);
     if(btn){
-      btn.textContent=n.paid?'✓ 已付款':'💰 標記已付款';
+      btn.textContent=n.paid?'已付款':'💰 標記已付款';
       btn.style.cssText=n.paid?'background:#EAF3DE;color:#3B6D11;border:1px solid rgba(59,109,17,0.3)':'background:#fff;color:#888780;border:1px solid rgba(0,0,0,0.15)';
     }
     const head=card.querySelector('.oc-head>div:last-child');
@@ -2428,7 +2468,7 @@ async function togglePaid(id){
       if(n.paid&&!badge){
         badge=document.createElement('span');
         badge.className='badge b-done paid-badge';
-        badge.textContent='✓ 已付款';
+        badge.textContent='已付款';
         head.insertBefore(badge,head.firstChild);
       } else if(!n.paid&&badge){
         badge.remove();
