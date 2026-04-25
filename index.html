@@ -2395,12 +2395,46 @@ function renderOrderCard(o){
         `:`
           <button class="btn-act btn-restore" onclick="setStatus('${o.id}','new')">還原</button>
         `}
+        <button class="btn-act" id="paid-btn-${o.id}" onclick="togglePaid('${o.id}')" style="${_n.paid?'background:#EAF3DE;color:#3B6D11;border:1px solid rgba(59,109,17,0.3)':'background:#fff;color:#888780;border:1px solid rgba(0,0,0,0.15)'}">
+          ${_n.paid?'✓ 已付款':'💰 標記付款'}
+        </button>
       </div>
       <span class="oc-total">合計 $${o.total}</span>
     </div>
   </div>`;
 }
 
+async function togglePaid(id){
+  const rawOrders=await sbGetOrders();
+  const raw=rawOrders.find(o=>o.id===id);
+  if(!raw)return;
+  const n=parseOrderNote(raw.note);
+  n.paid=!n.paid;
+  const newNote=serializeOrderNote(n.text,n.addr,n.paid);
+  await sbUpdateOrder(id,{note:newNote});
+  // 更新卡片上的按鈕跟 badge，不用全部重跑
+  const card=document.getElementById('oc-'+id);
+  if(card){
+    const btn=card.querySelector('#paid-btn-'+id);
+    if(btn){
+      btn.textContent=n.paid?'✓ 已付款':'💰 標記付款';
+      btn.style.cssText=n.paid?'background:#EAF3DE;color:#3B6D11;border:1px solid rgba(59,109,17,0.3)':'background:#fff;color:#888780;border:1px solid rgba(0,0,0,0.15)';
+    }
+    const head=card.querySelector('.oc-head>div:last-child');
+    if(head){
+      let badge=head.querySelector('.paid-badge');
+      if(n.paid&&!badge){
+        badge=document.createElement('span');
+        badge.className='paid-badge';
+        badge.style.cssText='font-size:11px;background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-weight:600';
+        badge.textContent='✓ 已付款';
+        head.insertBefore(badge,head.firstChild);
+      } else if(!n.paid&&badge){
+        badge.remove();
+      }
+    }
+  }
+}
 async function deleteOrder(id){
   if(!confirm('確定刪除這筆訂單？'))return;
   await sbDeleteOrder(id);
