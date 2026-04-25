@@ -2370,18 +2370,20 @@ function renderOrderCard(o){
     <div class="oc-meta">👤 ${escapeHtml(o.name)}｜📞 ${escapeHtml(o.phone)}</div>
     <div class="oc-meta">📅 ${escapeHtml(o.dateLabel||o.date)}｜🕐 ${escapeHtml(o.time)}</div>
     <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'銀行匯款':'現場付款'}</div>
-    <div class="oc-items">${(o.items||[]).map(i=>{
+    ${(()=>{const n=parseOrderNote(o.note);const hasNote=!!(n.text||n.addr);
+    const items=`<div class="oc-items"${hasNote?' style="margin-bottom:0"':''}>${(o.items||[]).map(i=>{
       let parts=[`<strong>${i.name}</strong> ×${i.qty}`];
       if(i.normal>0)parts.push(`要澱粉×${i.normal}`);
       if(i.noCarb>0)parts.push(`<span style="color:#3B6D11;font-weight:600">不要澱粉×${i.noCarb}</span>`);
       Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>parts.push(`${s}×${v}`));
       if(i.unitPrice&&i.unitPrice<i.origPrice)parts.push(`<span style="color:#3B6D11">$${i.unitPrice}/個</span>`);
       return parts.join(' · ');
-    }).join('<br>')}</div>
-    ${(()=>{const n=parseOrderNote(o.note);const parts=[];
-      if(n.text)parts.push(`<div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#2C2C2A;margin-bottom:2px"><span style="line-height:1">📝</span><span>${escapeHtml(n.text)}</span></div>`);
-      if(n.addr)parts.push(`<div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#1A4DB5;margin-bottom:2px"><span style="line-height:1">🚗</span><span>外送：${escapeHtml(n.addr)}</span></div>`);
-      return parts.length?`<div style="margin-bottom:8px">${parts.join('')}</div>`:'';
+    }).join('<br>')}</div>`;
+    if(!hasNote)return items;
+    const parts=[];
+    if(n.text)parts.push(`<div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#2C2C2A"><span style="line-height:1">📝</span><span>${escapeHtml(n.text)}</span></div>`);
+    if(n.addr)parts.push(`<div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#1A4DB5"><span style="line-height:1">🚗</span><span>外送：${escapeHtml(n.addr)}</span></div>`);
+    return items+`<div style="margin:8px 0">${parts.join('')}</div>`;
     })()}
     <div class="oc-footer">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
