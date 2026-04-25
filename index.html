@@ -117,10 +117,14 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .float-nav{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px}
 .float-btn{background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;color:#2C2C2A;font-family:inherit}
 .float-btn.hide{display:none}
+.drag-handle{cursor:grab;color:#bbb;font-size:18px;padding:2px 6px;user-select:none;flex-shrink:0;line-height:1}
+.drag-handle:active{cursor:grabbing;color:#3B6D11}
+.sortable-ghost{opacity:0.4;background:#EAF3DE!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
 
@@ -381,7 +385,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div>
                   <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">類別</div>
-                  <select id="new-item-type" onchange="document.getElementById('new-item-price-row').style.display=this.value==='single'?'block':'none'" style="width:100%;padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
+                  <select id="new-item-type" onchange="document.getElementById('new-item-price-row').style.display=this.value==='single'?'block':'none';document.getElementById('new-item-pricing-hint').style.display=this.value==='single'?'none':'block'" style="width:100%;padding:9px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
                     <option value="bento">便當類</option>
                     <option value="sauced">沙拉類</option>
                     <option value="single">單點</option>
@@ -398,6 +402,9 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
               <div id="new-item-price-row" style="display:none">
                 <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">售價 ($)</div>
                 <input id="new-item-price" type="number" min="1" placeholder="例如：50" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+              </div>
+              <div id="new-item-pricing-hint" style="display:block;font-size:12px;color:#639922;background:#EAF3DE;border-radius:7px;padding:8px 12px">
+                💡 便當／沙拉類的價格由「價格折扣」分頁的地點設定決定，新增後不需在此設定售價
               </div>
               <button onclick="addMenuItem()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增品項</button>
             </div>
@@ -510,13 +517,17 @@ const BENTO_IDS=['A','B','C','N'];
 const SUPABASE_URL='https://zxjlwhgchdgqclqjervn.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4amx3aGdjaGRncWNscWplcnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc3NjksImV4cCI6MjA5MTkxMzc2OX0.GBNle4CByPBdaaPw5RLNJqWOKhuG6WxRR_qfKiYANGo';
 
-// ── Supabase JS client ──────────────────────
+// ── Supabase JS client（後台管理，含 auth session）
 const _sb=supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     persistSession: true,
     storageKey: 'bento_auth',
     autoRefreshToken: true,
   }
+});
+// ── 前台訂單專用匿名 client（不帶 auth session，避免老闆登入後 RLS 擋住下單）
+const _sbAnon=supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {persistSession: false}
 });
 
 // Timeout 包裝：超時就視為失敗
@@ -534,7 +545,7 @@ async function sbGetOrders(){
 }
 async function sbUpsertOrder(order){
   try{
-    const {error}=await sbTimeout(_sb.from('orders').insert({
+    const {error}=await sbTimeout(_sbAnon.from('orders').insert({
       id:order.id, name:order.name, phone:order.phone,
       date:order.date, date_label:order.dateLabel, time:order.time,
       location:order.location, pay_method:order.payMethod,
@@ -937,13 +948,12 @@ function renderMenuSettings(){
     <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:12px 14px;margin-bottom:8px;opacity:${item.active?1:0.5}">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px">
+          <span class="drag-handle" title="拖曳排序">⠿</span>
           <span style="font-size:13px;font-weight:600;color:#2C2C2A">${item.name}</span>
           ${item.tag?`<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:1px 6px;border-radius:4px">${item.tag}</span>`:''}
           <span style="font-size:11px;background:${isSauced(item)?'#EAF3DE':'#F5F4F0'};color:${isSauced(item)?'#3B6D11':'#5F5E5A'};padding:1px 6px;border-radius:4px">${isSauced(item)?'沙拉類':'便當類'}</span>
         </div>
         <div style="display:flex;gap:6px">
-          <button onclick="moveMenuItem(${i},-1)" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#F5F4F0;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit" title="上移">↑</button>
-          <button onclick="moveMenuItem(${i},1)" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#F5F4F0;color:#5F5E5A;font-size:13px;cursor:pointer;font-family:inherit" title="下移">↓</button>
           <button onclick="saveMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:none;background:#3B6D11;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">儲存修改</button>
           <button onclick="toggleMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${item.active?'#FAEEDA':'#EAF3DE'};color:${item.active?'#BA7517':'#3B6D11'};font-size:12px;cursor:pointer;font-family:inherit">${item.active?'下架':'上架'}</button>
           <button onclick="deleteMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(163,45,45,0.2);background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer;font-family:inherit">刪除</button>
@@ -973,6 +983,22 @@ function renderMenuSettings(){
       </div>
 
     </div>`).join('');
+  if(typeof Sortable!=='undefined'){
+    Sortable.create(box,{
+      handle:'.drag-handle',
+      animation:150,
+      ghostClass:'sortable-ghost',
+      onEnd(evt){
+        if(evt.oldIndex===evt.newIndex)return;
+        const m=getMenu();
+        const moved=m.splice(evt.oldIndex,1)[0];
+        m.splice(evt.newIndex,0,moved);
+        saveMenu(m);MENU=getMenu();
+        buildMenu();
+        renderMenuSettings();
+      }
+    });
+  }
 }
 
 function saveMenuItem(i){
@@ -1598,7 +1624,7 @@ function scrollToMissing(){
 }
 
 async function generateOrderId(){
-  const {data,error}=await sbTimeout(_sb.rpc('generate_order_id'),8000);
+  const {data,error}=await sbTimeout(_sbAnon.rpc('generate_order_id'),8000);
   if(error||!data)throw new Error('無法產生訂單編號');
   return data;
 }
