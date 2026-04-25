@@ -966,9 +966,10 @@ function renderMenuSettings(){
         </div>
         <div>
           <div style="font-size:11px;color:#888780;margin-bottom:6px">標籤</div>
-          <div style="display:flex;gap:12px">
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
             <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-fv-${i}" ${(Array.isArray(item.tag)?item.tag:[]).includes('方便素')?'checked':''} style="accent-color:#3B6D11">方便素</label>
             <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-sp-${i}" ${(Array.isArray(item.tag)?item.tag:[]).includes('微辣')?'checked':''} style="accent-color:#A32D2D">微辣</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="accent-color:#3B6D11">澱粉選項</label>
           </div>
         </div>
         ${item.type==='single'?`
@@ -976,10 +977,6 @@ function renderMenuSettings(){
           <div style="font-size:11px;color:#888780;margin-bottom:3px">售價 ($)</div>
           <input type="number" id="mi-price-${i}" value="${item.price}" min="1" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
         </div>`:''}
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F5F4F0;border-radius:6px;margin-top:4px">
-          <input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="width:15px;height:15px;cursor:pointer;accent-color:#3B6D11">
-          <label for="carb-ck-${i}" style="font-size:12px;color:#2C2C2A;cursor:pointer">前台顯示澱粉選項</label>
-        </div>
       </div>
 
     </div>`).join('');
@@ -1090,7 +1087,7 @@ function renderPricingSettings(){
   const locs=getLocations();
   box.innerHTML=locs.map(l=>{
     const key=l.area+' '+l.name;
-    const p=data[key]||{bentoPrice:115,saucedPrice:139,discount:false,discountBento:110,discountSauced:135};
+    const p=data[key]||{bentoPrice:115,saucedPrice:139,discount:false,discountMinQty:3,discountBento:110,discountSauced:135};
     return `<div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:14px;margin-bottom:10px">
       <div style="font-size:14px;font-weight:600;color:#2C2C2A;margin-bottom:10px">📍 ${key}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -1105,9 +1102,13 @@ function renderPricingSettings(){
       </div>
       <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#F5F4F0;border-radius:8px">
         <input type="checkbox" id="p-disc-${key}" ${p.discount?'checked':''} onchange="toggleDiscountFields('${key}')" style="width:16px;height:16px;cursor:pointer;accent-color:#3B6D11">
-        <label for="p-disc-${key}" style="font-size:13px;font-weight:500;color:#2C2C2A;cursor:pointer">滿3個折扣</label>
+        <label for="p-disc-${key}" style="font-size:13px;font-weight:500;color:#2C2C2A;cursor:pointer">滿額折扣</label>
       </div>
-      <div id="p-disc-fields-${key}" style="display:${p.discount?'grid':'none'};grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div id="p-disc-fields-${key}" style="display:${p.discount?'grid':'none'};grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+        <div>
+          <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">起折數量（個）</div>
+          <input type="number" id="p-minqty-${key}" value="${p.discountMinQty||3}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
+        </div>
         <div>
           <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">便當折後價 ($)</div>
           <input type="number" id="p-dbento-${key}" value="${p.discountBento||p.bentoPrice}" min="1" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit">
@@ -1135,9 +1136,10 @@ function savePricingSettings(){
     const bento=parseInt(document.getElementById('p-bento-'+key)?.value)||115;
     const sauced=parseInt(document.getElementById('p-sauced-'+key)?.value)||139;
     const disc=document.getElementById('p-disc-'+key)?.checked||false;
+    const minQty=parseInt(document.getElementById('p-minqty-'+key)?.value)||3;
     const dbento=parseInt(document.getElementById('p-dbento-'+key)?.value)||bento;
     const dsauced=parseInt(document.getElementById('p-dsauced-'+key)?.value)||sauced;
-    data[key]={bentoPrice:bento,saucedPrice:sauced,discount:disc,discountBento:dbento,discountSauced:dsauced};
+    data[key]={bentoPrice:bento,saucedPrice:sauced,discount:disc,discountMinQty:minQty,discountBento:dbento,discountSauced:dsauced};
   });
   savePricingData(data);
   alert('價格已儲存！');
@@ -1507,7 +1509,7 @@ function updateCart(){
   area.style.display='block';
   const list=document.getElementById('cart-list');list.innerHTML='';
   const pricing=getLocationPricing();
-  const hasDiscount=pricing.discount&&totalQty()>=3;
+  const hasDiscount=pricing.discount&&totalQty()>=(pricing.discountMinQty||3);
   let total=0,saved=0;
   keys.forEach(id=>{
     const item=MENU.find(m=>m.id===id);
@@ -1543,7 +1545,8 @@ function updateCart(){
     hint.innerHTML=`🎉 已享折扣，共省下 <strong style="color:#3B6D11">$${saved}</strong>`;
     hint.style.background='#EAF3DE';hint.style.color='#27500A';
   } else if(p.discount){
-    const need=3-totalQty();
+    const minQty=p.discountMinQty||3;
+    const need=minQty-totalQty();
     hint.innerHTML=`再加 <strong>${need}</strong> 個便當即享折扣（$${p.bentoPrice}→<strong>$${p.discountBento}</strong>、$${p.saucedPrice}→<strong>$${p.discountSauced}</strong>）`;
     hint.style.background='#F5F4F0';hint.style.color='#888780';
   } else {
@@ -1642,7 +1645,7 @@ async function submitOrder(){
     }
   }
   const pricing=getLocationPricing();
-  const hasDiscount=pricing.discount&&totalQty()>=3;
+  const hasDiscount=pricing.discount&&totalQty()>=(pricing.discountMinQty||3);
   const items=Object.keys(cart).map(id=>{
     const item=MENU.find(m=>m.id===id);
     const e=cart[id];
@@ -2598,7 +2601,8 @@ async function saveEdit(id){
   const d=new Date(date);
   const dow=d.getDay();
   const dateLabel=`${d.getMonth()+1}/${d.getDate()}（週${WEEKDAYS[dow]}）`;
-  const hasDiscount=newItems.reduce((s,i)=>s+i.qty,0)>=3;
+  const editPricing=getPricingData()[o.location]||{discountMinQty:3};
+  const hasDiscount=newItems.reduce((s,i)=>s+i.qty,0)>=(editPricing.discountMinQty||3);
   newItems.forEach(i=>{i.unitPrice=discountedPrice(i.origPrice,hasDiscount);});
   const total=newItems.reduce((s,i)=>s+i.qty*i.unitPrice,0);
 
