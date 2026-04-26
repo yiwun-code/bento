@@ -120,7 +120,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .drag-handle{cursor:grab;color:#bbb;font-size:18px;padding:2px 6px;user-select:none;flex-shrink:0;line-height:1}
 .drag-handle:active{cursor:grabbing;color:#3B6D11}
 .sortable-ghost{opacity:0.4;background:#EAF3DE!important}
-.lang-toggle{position:absolute;top:14px;right:14px;display:flex;gap:4px;background:rgba(255,255,255,0.15);border-radius:8px;padding:3px}
+.lang-toggle{display:flex;gap:4px;background:rgba(255,255,255,0.15);border-radius:8px;padding:3px;flex-shrink:0}
 .lang-btn{background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all 0.12s}
 .lang-btn.active{background:rgba(255,255,255,0.25);color:#fff}
 </style>
@@ -137,7 +137,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
 <!-- FRONT -->
 <div id="page-front" class="page active">
-  <header style="position:relative">
+  <header>
     <div>
       <h1>🌱 <span data-i18n="farmName">生根有機農場</span></h1>
       <div class="sub" data-i18n="subtitle">有機餐盒預訂</div>
