@@ -1158,13 +1158,15 @@ function menuItemCardHTML(item,i){
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
-        <div style="flex:1;min-width:160px">
-          <div style="font-size:11px;color:#888780;margin-bottom:3px">品項名稱（中文）</div>
-          <input id="mi-name-${i}" value="${item.name}" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
-        </div>
-        <div style="flex:1;min-width:140px">
-          <div style="font-size:11px;color:#888780;margin-bottom:3px">English name</div>
-          <input id="mi-name-en-${i}" value="${item.nameEn||''}" placeholder="e.g. Chicken Bento" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
+        <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px">
+          <div>
+            <div style="font-size:11px;color:#888780;margin-bottom:3px">品項名稱（中文）</div>
+            <input id="mi-name-${i}" value="${item.name}" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#888780;margin-bottom:3px">English name</div>
+            <input id="mi-name-en-${i}" value="${item.nameEn||''}" placeholder="e.g. Chicken Bento" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box">
+          </div>
         </div>
         ${item.type==='single'?`<div style="flex:0 0 80px">
           <div style="font-size:11px;color:#888780;margin-bottom:3px">售價 ($)</div>
