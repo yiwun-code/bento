@@ -1486,17 +1486,16 @@ function buildDates(){
   }
 }
 async function loadTacoFlavorsForDate(iso){
-  // 查那天已有訂單裡出現過哪些脆餅口味，≥2種就鎖定
-  if(localStorage.getItem('taco_flavors')!==null)return; // 老闆有手動設定，不覆蓋
+  if(localStorage.getItem('taco_flavors')!==null)return; // 老闆手動設定優先，不覆蓋
   try{
     const {data,error}=await sbTimeout(
-      _sbAnon.from('orders').select('items').eq('date',iso).neq('status','cancelled')
+      _sbAnon.rpc('get_taco_flavors_for_date',{check_date:iso})
     );
     if(error||!data)return;
-    const tacoSet=new Set();
-    data.forEach(o=>(o.items||[]).forEach(i=>{if(TACO_IDS.includes(i.id))tacoSet.add(i.id);}));
-    if(tacoSet.size>=2){
-      localStorage.setItem('taco_flavors_auto',JSON.stringify([...tacoSet]));
+    // data 是 ['J','K'] 之類的陣列
+    const ids=(Array.isArray(data)?data:[]).filter(id=>TACO_IDS.includes(id));
+    if(ids.length>=2){
+      localStorage.setItem('taco_flavors_auto',JSON.stringify(ids));
     } else {
       localStorage.removeItem('taco_flavors_auto');
     }
