@@ -2156,6 +2156,7 @@ async function goAdmin(){
   document.getElementById('page-front').classList.remove('active');
   document.getElementById('page-admin').classList.add('active');
   document.getElementById('nav-to-admin').classList.add('hide');
+  document.querySelector('.lang-pill').style.display='none';
   // 檢查是否已有登入 session
   const {data:{session}}=await sbTimeout(_sb.auth.getSession(),8000).catch(()=>({data:{session:null}}));
   if(session){
@@ -2175,6 +2176,7 @@ function goFront(){
   document.getElementById('page-admin').classList.remove('active');
   document.getElementById('page-front').classList.add('active');
   document.getElementById('nav-to-admin').classList.remove('hide');
+  document.querySelector('.lang-pill').style.display='';
 }
 let currentTab='orders';
 let revPeriod='day';
