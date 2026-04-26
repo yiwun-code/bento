@@ -386,6 +386,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
             <div style="font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:10px">＋ 新增品項</div>
             <div style="display:flex;flex-direction:column;gap:8px">
               <input id="new-item-name" type="text" placeholder="品項名稱（例如：照燒雞腿）" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+              <input id="new-item-name-en" type="text" placeholder="English name (e.g. Teriyaki Chicken Bento)" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
               <div style="display:flex;align-items:center;gap:16px">
                 <div style="flex:0 0 auto">
                   <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">類別</div>
@@ -781,6 +782,8 @@ async function init(){
     new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 
   // 先用 localStorage 快取或預設值立即渲染，不等 Supabase（避免地點載入卡住）
+  // Backfill English names for existing items that don't have nameEn set
+  (()=>{const m=getMenu();let c=false;m.forEach(item=>{if(!item.nameEn&&DEFAULT_ITEM_EN[item.name]){item.nameEn=DEFAULT_ITEM_EN[item.name];c=true;}});if(c)saveMenu(m);})();
   MENU=getMenu();
   applyI18n();
   buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
@@ -1282,13 +1285,15 @@ function addMenuItem(){
   const type=document.getElementById('new-item-type').value;
   const tags=['方便素','微辣'].filter((_,i)=>document.getElementById(i===0?'new-item-tag-fv':'new-item-tag-sp')?.checked);
   if(!name){alert('請填寫品項名稱');return;}
+  const nameEn=document.getElementById('new-item-name-en').value.trim();
   const menu=getMenu();
   const newId='Z'+Date.now().toString().slice(-4);
   let price=type==='sauced'?139:type==='single'?(parseInt(document.getElementById('new-item-price')?.value)||50):100;
-  menu.push({id:newId,name,price,type,tag:tags,active:true});
+  menu.push({id:newId,name,nameEn,price,type,tag:tags,active:true});
   saveMenu(menu);
   MENU=getMenu();
   document.getElementById('new-item-name').value='';
+  document.getElementById('new-item-name-en').value='';
   const priceEl=document.getElementById('new-item-price');
   if(priceEl)priceEl.value='';
   ['new-item-tag-fv','new-item-tag-sp'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
