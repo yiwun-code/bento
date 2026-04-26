@@ -161,7 +161,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
       <div id="menu-section" style="display:none">
         <div class="sec-title">選擇餐點 <span style="color:#A32D2D">*（必填）</span></div>
-        <div id="taco-notice" style="display:none;font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:10px">🌮 墨西哥脆餅每日限選 2 種口味，已達兩種口味上限後無法加選第三種口味</div>
+        <div id="taco-notice" style="display:none;font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:10px">🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選</div>
         <div class="menu-grid" id="menu-grid"></div>
         <div class="divider"></div>
         <div class="sec-title">取餐時間 <span style="color:#A32D2D">*（必填）</span></div>
@@ -417,7 +417,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
             <div style="font-size:15px;font-weight:600;color:#2C2C2A">墨西哥脆餅今日口味</div>
             <span id="taco-date" style="font-size:13px;color:#888780"></span>
           </div>
-          <div style="font-size:13px;color:#888780;margin-bottom:10px">勾選今日供應的口味（最多 2 種），前台未勾選的口味會顯示但無法點選</div>
+          <div style="font-size:13px;color:#888780;margin-bottom:10px">勾選今日供應的口味（最多 3 種），前台未勾選的口味會顯示但無法點選</div>
           <div id="taco-settings"></div>
           <button onclick="saveTacoSettings()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px">儲存今日口味</button>
           <button onclick="resetTacoSettings()" style="width:100%;padding:10px;background:transparent;color:#888780;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px">清除設定（全部開放）</button>
@@ -958,7 +958,7 @@ async function loadTacoSettings(){
 }
 async function saveTacoSettings(){
   const checked=TACO_IDS.filter(id=>document.getElementById('taco-ck-'+id)?.checked);
-  if(checked.length>2){alert('最多只能選 2 種口味');return;}
+  if(checked.length>3){alert('最多只能選 3 種口味');return;}
   localStorage.setItem('taco_flavors',JSON.stringify(checked));
   await sbUpsertSetting('taco_flavors',checked);
   alert('今日口味已儲存！');
@@ -1229,17 +1229,16 @@ function renderTacoSettings(){
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:6px">
       <input type="checkbox" id="taco-ck-${id}" ${isOn?'checked':''} onchange="onTacoChange()" style="width:18px;height:18px;cursor:pointer;accent-color:#3B6D11">
       <label for="taco-ck-${id}" style="font-size:14px;font-weight:500;color:#2C2C2A;cursor:pointer;flex:1">${item.name.replace('墨西哥脆餅（','').replace('）','')}</label>
-      ${saved&&!isOn?'<span style="font-size:11px;color:#A32D2D;background:#FCEBEB;padding:2px 8px;border-radius:4px">每日限選2種口味</span>':''}
+      ${saved&&!isOn?'<span style="font-size:11px;color:#A32D2D;background:#FCEBEB;padding:2px 8px;border-radius:4px">每日限選3種口味</span>':''}
     </div>`;
   }).join('');
 }
 function onTacoChange(){
   const checked=TACO_IDS.filter(id=>document.getElementById('taco-ck-'+id)?.checked);
   // 超過 2 個就把最新勾的取消
-  if(checked.length>2){
+  if(checked.length>3){
     const last=checked[checked.length-1];
     document.getElementById('taco-ck-'+last).checked=false;
-
   }
 }
 
@@ -1252,8 +1251,8 @@ function getAvailableTacos(){
   const dailyPool=tacoSetting?TACO_IDS.filter(id=>tacoSetting.includes(id)):TACO_IDS;
   // 購物車內已選的脆餅種類
   const selectedTacos=TACO_IDS.filter(id=>cart[id]&&(cart[id].normal+cart[id].noCarb)>0);
-  if(selectedTacos.length<2) return dailyPool; // 還不到2種，開放今日池子
-  return selectedTacos; // 已選2種，只允許這2種（一定在 dailyPool 內）
+  if(selectedTacos.length<3) return dailyPool; // 還不到3種，開放今日池子
+  return selectedTacos; // 已選3種，只允許這3種（一定在 dailyPool 內）
 }
 
 
@@ -1281,9 +1280,9 @@ function buildMenu(){
   const notice=document.getElementById('taco-notice');
   if(notice)notice.style.display='none'; // 改為在沙拉類區塊內顯示
   const selectedTacos=TACO_IDS.filter(id=>cart[id]&&(cart[id].normal+cart[id].noCarb)>0);
-  const tacoNoticeText=selectedTacos.length>=2
-    ?'🌮 墨西哥脆餅每日限選 2 種口味，已達兩種口味上限後無法加選第3種口味'
-    :'🌮 墨西哥脆餅每日限選 2 種口味';
+  const tacoNoticeText=selectedTacos.length>=3
+    ?'🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選'
+    :'🌮 墨西哥脆餅每日限選 3 種口味';
 
   const TYPE_META={
     bento:{label:'便當',bg:'#FAEEDA',color:'#BA7517',hdr:'便當類'},
@@ -1344,7 +1343,7 @@ function buildMenu(){
           <div class="m-name" style="color:#888780">${item.name}</div>
           <div class="m-price" style="color:#B4B2A9">$${item.price}</div>
         </div>
-        <span style="font-size:11px;color:#A32D2D;background:#FCEBEB;padding:3px 8px;border-radius:4px;font-weight:500">墨西哥脆餅每日限選2種口味</span>
+        <span style="font-size:11px;color:#A32D2D;background:#FCEBEB;padding:3px 8px;border-radius:4px;font-weight:500">墨西哥脆餅每日限選3種口味</span>
       </div>`:`
       <div class="menu-card-row">
         <div>
