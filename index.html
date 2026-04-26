@@ -681,6 +681,38 @@ const T={
 function t(key){return(T[key]&&T[key][LANG])||T[key]?.zh||key;}
 const TAG_EN={'方便素':'Vegetarian Friendly','微辣':'Mildly Spicy'};
 function tTag(tag){return LANG==='en'?(TAG_EN[tag]||tag):tag;}
+const DEFAULT_LOC_EN={
+  '中和 遠東世紀廣場':{areaEn:'Zhonghe',nameEn:'Far East Century Park'},
+  '內湖 國防醫學大學':{areaEn:'Neihu',nameEn:'National Defense Medical Center'},
+  '南港 國家生技園區':{areaEn:'Nangang',nameEn:'National Biotechnology Research Park'},
+  '大安 聯合醫院仁愛院區':{areaEn:"Da'an",nameEn:'Taipei City Hospital (Renai Branch)'},
+  '大安 中華電信愛國園區':{areaEn:"Da'an",nameEn:'Chunghwa Telecom (Aiguo Campus)'},
+};
+const DEFAULT_ITEM_EN={
+  '義式雞腿便當':'Italian Style Chicken Drumstick Bento',
+  '義式雞腿便當＋蔬菜':'Italian Style Chicken Drumstick & Vegetable Bento',
+  '鮭魚便當':'Salmon Bento',
+  '鮭魚＋蔬菜':'Salmon Bento',
+  '京醬肉絲便當':'Shredded Pork in Sweet Bean Sauce Bento',
+  '素食便當':'Vegetarian Bento',
+  '蔬食便當':'Vegetarian Bento',
+  '三杯雞便當':'Three-Cup Chicken Bento',
+  '骰子牛肉':'Diced Beef Salad',
+  '骰子牛肋條':'Diced Beef Ribs Salad',
+  '椒鹽舒肥雞胸':'Salt & Pepper Sous Vide Chicken Breast Salad',
+  '雙拼（義式雞腿＋奶油蒜蝦）':'Double Combo (Italian Chicken + Garlic Butter Shrimp) Salad',
+  '雙拼（鮭魚＋舒肥雞胸）':'Double Combo (Salmon + Sous Vide Chicken Breast) Salad',
+  '一般鮭魚':'Salmon Salad',
+  '煙燻鴨腿':'Smoked Duck Leg Salad',
+  '雙拼（義式雞腿＋煙燻鴨腿）':'Double Combo (Italian Chicken + Smoked Duck Leg) Salad',
+  '墨西哥脆餅（明太子蝦蟹起司）':'Mexican Tortilla (Mentaiko Shrimp & Crab Cheese)',
+  '墨西哥脆餅（BBQ牛肉起司）':'Mexican Tortilla (BBQ Beef Cheese)',
+  '墨西哥脆餅（BBQ嫩牛起司）':'Mexican Tortilla (BBQ Beef Cheese)',
+  '墨西哥脆餅（泰豬起司）':'Mexican Tortilla (Thai Pork Cheese)',
+  '墨西哥脆餅（羅勒野菇起司）':'Mexican Tortilla (Basil Wild Mushroom Cheese)',
+  '龍鬚菜捲':'Chayote Shoot Rolls',
+};
+function itemNameEN(item){return item.nameEn||DEFAULT_ITEM_EN[item.name]||item.name;}
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key=el.dataset.i18n;
@@ -819,11 +851,13 @@ function buildLocations(){
   selectedLocation='';
   getLocations().filter(loc=>loc.active===true).forEach(loc=>{
     const label=`${loc.area} ${loc.name}`;
-    const displayArea=LANG==='en'?(loc.areaEn||loc.area):loc.area;
-    const displayName=LANG==='en'?(loc.nameEn||loc.name):loc.name;
+    const locEnFb=DEFAULT_LOC_EN[`${loc.area} ${loc.name}`]||{};
+    const displayArea=LANG==='en'?(loc.areaEn||locEnFb.areaEn||loc.area):loc.area;
+    const displayName=LANG==='en'?(loc.nameEn||locEnFb.nameEn||loc.name):loc.name;
+    const hasEnName=loc.areaEn||loc.nameEn||locEnFb.areaEn||locEnFb.nameEn;
     const d=document.createElement('div');
     d.className='loc-btn';
-    d.innerHTML=`<div class="loc-dot"></div><div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(displayArea)}　<span>${escapeHtml(displayName)}</span></div>${LANG==='en'&&(loc.areaEn||loc.nameEn)?`<div style="font-size:11px;color:#888780;margin-top:1px">${escapeHtml(loc.area)} ${escapeHtml(loc.name)}</div>`:''}</div>`;
+    d.innerHTML=`<div class="loc-dot"></div><div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(displayArea)}　<span>${escapeHtml(displayName)}</span></div>${LANG==='en'&&hasEnName?`<div style="font-size:11px;color:#888780;margin-top:1px">${escapeHtml(loc.area)} ${escapeHtml(loc.name)}</div>`:''}</div>`;
     d.onclick=()=>selectLocation(label,d);
     g.appendChild(d);
   });
@@ -1552,7 +1586,7 @@ function buildMenu(){
       </div>`:`
       <div class="menu-card-row">
         <div>
-          <div class="m-name">${(LANG==='en'&&item.nameEn)||item.name}${typePill}${(Array.isArray(item.tag)?item.tag:[]).map(tg=>`<span class="m-tag" style="${tg==='微辣'?'background:#FDECEA;color:#A32D2D':''}">${tTag(tg)}</span>`).join('')}</div>
+          <div class="m-name">${LANG==='en'?itemNameEN(item):item.name}${typePill}${(Array.isArray(item.tag)?item.tag:[]).map(tg=>`<span class="m-tag" style="${tg==='微辣'?'background:#FDECEA;color:#A32D2D':''}">${tTag(tg)}</span>`).join('')}</div>
           <div class="m-price">$${getItemPrice(item)}</div>
         </div>
         <div class="qty-row">
@@ -1840,7 +1874,7 @@ function updateCart(){
     row.style.cssText='padding:10px 0;border-bottom:1px solid rgba(59,109,17,0.15)';
     row.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
-        <span style="font-size:14px;font-weight:600;color:#2C2C2A">${(LANG==='en'&&item.nameEn)||item.name}</span>
+        <span style="font-size:14px;font-weight:600;color:#2C2C2A">${LANG==='en'?itemNameEN(item):item.name}</span>
         <span style="font-size:15px;font-weight:700;color:#3B6D11">$${sub}</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
@@ -1894,7 +1928,7 @@ function updateSubmitBtn(){
       if(isSauced(item)){
         const diff=totalQtyForId(id)-sauceTotalForId(id);
         if(diff>0){
-          msg=LANG==='en'?`${item.nameEn||item.name}: ${diff} dressing(s) not selected`:`${item.name} 還有 ${diff} 份未選醬料`;
+          msg=LANG==='en'?`${itemNameEN(item)}: ${diff} dressing(s) not selected`:`${item.name} 還有 ${diff} 份未選醬料`;
           break;
         }
       }
@@ -2001,7 +2035,9 @@ async function submitOrder(){
       if(i.normal>0)dl.push(`${t('cartWithCarb')}×${i.normal}`);
       if(i.noCarb>0)dl.push(`<span style="color:#3B6D11">${t('cartNoCarb')}×${i.noCarb}</span>`);
       Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>dl.push(`${s}×${v}`));
-      return `${i.name}<br><small style="color:#5F5E5A">${dl.join(LANG==='en'?', ':'、')}</small>`;
+      const iMenuItem=MENU.find(m=>m.id===i.id);
+      const iDisplayName=iMenuItem&&LANG==='en'?itemNameEN(iMenuItem):i.name;
+      return `${iDisplayName}<br><small style="color:#5F5E5A">${dl.join(LANG==='en'?', ':'、')}</small>`;
     }).join('<br>')}</span></div>
     ${saved>0?`<div class="order-info-row"><span class="k">${t('infoDiscount')}</span><span class="v" style="color:#3B6D11">${t('discountSaved')} $${saved}</span></div>`:''}
     <div class="order-info-row"><span class="k">${t('infoTotal')}</span><span class="v" style="color:#3B6D11;font-size:16px;font-weight:700">$${total}</span></div>
