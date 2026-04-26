@@ -155,10 +155,8 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
       <div class="sec-title">取餐日期 <span style="color:#A32D2D">*（必填）</span></div>
       <div class="date-grid" id="date-grid"></div>
       <div class="divider"></div>
-      <div class="form-group">
-        <label>取餐地點 <span style="color:#A32D2D">*（必填）</span></label>
-        <div id="location-group"><div style="font-size:13px;color:#888780;padding:8px 0">📍 載入取餐地點中...</div></div>
-      </div>
+      <div class="sec-title">取餐地點 <span style="color:#A32D2D">*（必填）</span></div>
+      <div id="location-group"><div style="font-size:13px;color:#888780;padding:8px 0">📍 載入取餐地點中...</div></div>
       <div class="divider"></div>
 
       <div id="menu-section" style="display:none">
@@ -1547,12 +1545,27 @@ function selectLocation(val,el){
   const dot=el.querySelector('.loc-dot');
   dot.style.border='2px solid #3B6D11';dot.style.background='#3B6D11';
   dot.innerHTML='<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>';
+  // 選完地點後重建日期格，如果已選日期剛好是該地點的休息日就清除
+  buildDates();
+  if(selectedDate){
+    const paused=getPausedDates();
+    const locPaused=paused[val]||{};
+    if(locPaused[selectedDate]){
+      selectedDate=null;
+      // 顯示提示
+      const hint=document.createElement('div');
+      hint.style.cssText='font-size:12px;color:#A32D2D;background:#FCEBEB;border-radius:8px;padding:8px 12px;margin-top:8px';
+      hint.textContent='⚠️ 你原本選的日期是這個地點的休息日，請重新選擇日期';
+      document.getElementById('date-grid')?.after(hint);
+      setTimeout(()=>hint.remove(),4000);
+    }
+  }
   // 兩者都選了才顯示菜單區塊
   const ms=document.getElementById('menu-section');
   if(ms)ms.style.display=(selectedDate?'block':'none');
   // 重建菜單（更新價格）並清空購物車
   cart={};
-  buildMenu();buildDates();buildTimes();updateCart();
+  buildMenu();buildTimes();updateCart();
   updateSubmitBtn();
 }
 
