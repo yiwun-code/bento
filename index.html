@@ -1051,7 +1051,7 @@ async function deriveTacoFlavorsFromOrders(){
     if(error||!data){return;}
     const tacoSet=new Set();
     data.forEach(o=>(o.items||[]).forEach(i=>{if(TACO_IDS.includes(i.id))tacoSet.add(i.id);}));
-    if(tacoSet.size>=2){
+    if(tacoSet.size>=3){
       localStorage.setItem('taco_flavors_auto',JSON.stringify([...tacoSet]));
     } else {
       localStorage.removeItem('taco_flavors_auto');
@@ -1670,7 +1670,7 @@ async function loadTacoFlavorsForDate(iso){
     if(error||!data)return;
     // data 是 ['J','K'] 之類的陣列
     const ids=(Array.isArray(data)?data:[]).filter(id=>TACO_IDS.includes(id));
-    if(ids.length>=2){
+    if(ids.length>=3){
       localStorage.setItem('taco_flavors_auto',JSON.stringify(ids));
     } else {
       localStorage.removeItem('taco_flavors_auto');
