@@ -120,6 +120,9 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .drag-handle{cursor:grab;color:#bbb;font-size:18px;padding:2px 6px;user-select:none;flex-shrink:0;line-height:1}
 .drag-handle:active{cursor:grabbing;color:#3B6D11}
 .sortable-ghost{opacity:0.4;background:#EAF3DE!important}
+.lang-toggle{position:absolute;top:14px;right:14px;display:flex;gap:4px;background:rgba(255,255,255,0.15);border-radius:8px;padding:3px}
+.lang-btn{background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all 0.12s}
+.lang-btn.active{background:rgba(255,255,255,0.25);color:#fff}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -134,49 +137,53 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
 <!-- FRONT -->
 <div id="page-front" class="page active">
-  <header>
+  <header style="position:relative">
     <div>
-      <h1>🌱 生根有機農場</h1>
-      <div class="sub">有機餐盒預訂</div>
+      <h1>🌱 <span data-i18n="farmName">生根有機農場</span></h1>
+      <div class="sub" data-i18n="subtitle">有機餐盒預訂</div>
       <div class="sub" id="today-label"></div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn" onclick="setLang('zh')" id="lang-zh">中</button>
+      <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
     </div>
   </header>
   <div id="view-order">
     <div class="container">
-      <div class="sec-title">聯絡資料</div>
+      <div class="sec-title" data-i18n="secContact">聯絡資料</div>
       <div class="form-group">
-        <label>姓名 <span style="color:#A32D2D">*（必填）</span></label>
-        <input id="f-name" type="text" placeholder="王小明" autocomplete="name" oninput="updateSubmitBtn()">
+        <label><span data-i18n="labelName">姓名</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></label>
+        <input id="f-name" type="text" data-i18n-placeholder="placeholderName" placeholder="王小明" autocomplete="name" oninput="updateSubmitBtn()">
       </div>
       <div class="form-group">
-        <label>電話 <span style="color:#A32D2D">*（必填）</span></label>
+        <label><span data-i18n="labelPhone">電話</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></label>
         <input id="f-phone" type="tel" placeholder="0912-345-678" autocomplete="off" maxlength="12" oninput="formatPhone(this);updateSubmitBtn()" onchange="formatPhone(this);updateSubmitBtn()" onblur="formatPhone(this);updateSubmitBtn()" inputmode="numeric">
       </div>
-      <div class="sec-title">取餐地點 <span style="color:#A32D2D">*（必填）</span></div>
-      <div id="location-group"><div style="font-size:13px;color:#888780;padding:8px 0">📍 載入取餐地點中...</div></div>
+      <div class="sec-title"><span data-i18n="secLocation">取餐地點</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></div>
+      <div id="location-group"><div style="font-size:13px;color:#888780;padding:8px 0" data-i18n="loadingLocations">📍 載入取餐地點中...</div></div>
       <div class="divider"></div>
-      <div class="sec-title">取餐日期 <span style="color:#A32D2D">*（必填）</span></div>
+      <div class="sec-title"><span data-i18n="secDate">取餐日期</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></div>
       <div class="date-grid" id="date-grid"></div>
       <div class="divider"></div>
 
       <div id="menu-section" style="display:none">
-        <div class="sec-title">選擇餐點 <span style="color:#A32D2D">*（必填）</span></div>
-        <div id="taco-notice" style="display:none;font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:10px">🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選</div>
+        <div class="sec-title"><span data-i18n="secMenu">選擇餐點</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></div>
+        <div id="taco-notice" style="display:none;font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:10px" data-i18n="tacoNotice">🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選</div>
         <div class="menu-grid" id="menu-grid"></div>
         <div class="divider"></div>
-        <div class="sec-title">取餐時間 <span style="color:#A32D2D">*（必填）</span></div>
+        <div class="sec-title"><span data-i18n="secTime">取餐時間</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></div>
         <div class="time-grid" id="time-grid"></div>
         <div class="divider"></div>
         <div class="form-group">
-          <label>其他備註</label>
-          <textarea id="f-note" placeholder="選填（例如：其他特殊需求）"></textarea>
+          <label data-i18n="labelNote">其他備註</label>
+          <textarea id="f-note" data-i18n-placeholder="placeholderNote" placeholder="選填（例如：其他特殊需求）"></textarea>
         </div>
         <div class="form-group">
-          <label>付款方式 <span style="color:#A32D2D">*（必填）</span></label>
+          <label><span data-i18n="labelPayment">付款方式</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></label>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <div class="pay-btn" id="pay-cash" onclick="selectPay('cash')" style="border-color:#3B6D11;background:#EAF3DE">
             <div class="pay-dot" id="pay-cash-dot" style="border-color:#3B6D11;background:#3B6D11"><div style="width:7px;height:7px;border-radius:50%;background:#fff"></div></div>
-            <div><div class="pay-label" id="pay-cash-label" style="font-size:13px;font-weight:600;color:#27500A">現場付款</div></div>
+            <div><div class="pay-label" id="pay-cash-label" style="font-size:13px;font-weight:600;color:#27500A" data-i18n="payCash">現場付款</div></div>
           </div>
           <div class="pay-btn" id="pay-linepay" onclick="selectPay('linepay')">
             <div class="pay-dot" id="pay-linepay-dot"></div>
@@ -184,75 +191,75 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
           </div>
           <div class="pay-btn" id="pay-transfer" onclick="selectPay('transfer')">
             <div class="pay-dot" id="pay-transfer-dot"></div>
-            <div><div class="pay-label" id="pay-transfer-label" style="font-size:13px;font-weight:600;color:#2C2C2A">銀行匯款</div></div>
+            <div><div class="pay-label" id="pay-transfer-label" style="font-size:13px;font-weight:600;color:#2C2C2A" data-i18n="payTransfer">銀行匯款</div></div>
           </div>
         </div>
         <div id="linepay-note" style="display:none;margin-top:10px">
           <div style="background:#00B900;border-radius:14px;padding:20px 16px;text-align:center">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.8);margin-bottom:4px">LINE PAY</div>
-            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:14px">掃描 QR Code 付款</div>
+            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:14px" data-i18n="linepayTitle">掃描 QR Code 付款</div>
             <div style="background:#fff;border-radius:10px;padding:12px;display:inline-block;margin-bottom:12px">
               <img src="data:image/png;base64,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" alt="LINE Pay QR Code" style="width:180px;height:auto;display:block;border-radius:4px">
             </div>
-            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:2px">生根有機農場</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:14px">掃碼後輸入金額完成付款</div>
-            <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.9)">付款完成請截圖傳給老闆確認 📸</div>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:2px" data-i18n="farmName">生根有機農場</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:14px" data-i18n="linepayHint">掃碼後輸入金額完成付款</div>
+            <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.9)" data-i18n="payScreenshot">付款完成請截圖傳給老闆確認 📸</div>
           </div>
         </div>
         <div id="transfer-note" style="display:none;margin-top:10px">
           <div style="background:#EAF3DE;border:1.5px solid rgba(59,109,17,0.25);border-radius:14px;padding:20px 16px;font-family:inherit;text-align:center">
-            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#639922;margin-bottom:4px">銀行匯款</div>
-            <div style="font-size:16px;font-weight:700;color:#27500A;margin-bottom:14px">請匯款至以下帳號</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#639922;margin-bottom:4px" data-i18n="transferTitle">銀行匯款</div>
+            <div style="font-size:16px;font-weight:700;color:#27500A;margin-bottom:14px" data-i18n="transferSubtitle">請匯款至以下帳號</div>
             <div style="background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:12px;text-align:left">
               <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)">
-                <span style="font-size:13px;color:#5F5E5A;font-family:inherit">銀行</span>
+                <span style="font-size:13px;color:#5F5E5A;font-family:inherit" data-i18n="transferBank">銀行</span>
                 <span style="font-size:13px;font-weight:600;color:#2C2C2A;font-family:inherit">中國信託（822）</span>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)">
-                <span style="font-size:13px;color:#5F5E5A;font-family:inherit">戶名</span>
+                <span style="font-size:13px;color:#5F5E5A;font-family:inherit" data-i18n="transferAcctName">戶名</span>
                 <span style="font-size:13px;font-weight:600;color:#2C2C2A;font-family:inherit">蔡明憲</span>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0">
-                <span style="font-size:13px;color:#5F5E5A;font-family:inherit">帳號</span>
+                <span style="font-size:13px;color:#5F5E5A;font-family:inherit" data-i18n="transferAcctNo">帳號</span>
                 <div style="display:flex;align-items:center;gap:8px">
                   <span style="font-size:13px;font-weight:700;color:#27500A;font-family:inherit">130-540-568-163</span>
-                  <button onclick="copyTransferAccount(this)" style="font-size:11px;font-weight:600;color:#fff;background:#3B6D11;border:none;border-radius:5px;padding:3px 8px;cursor:pointer;font-family:inherit;white-space:nowrap">複製</button>
+                  <button onclick="copyTransferAccount(this)" style="font-size:11px;font-weight:600;color:#fff;background:#3B6D11;border:none;border-radius:5px;padding:3px 8px;cursor:pointer;font-family:inherit;white-space:nowrap" data-i18n="transferCopy">複製</button>
                 </div>
               </div>
             </div>
-            <div style="background:rgba(59,109,17,0.1);border-radius:8px;padding:8px 12px;font-size:12px;color:#3B6D11;font-family:inherit">匯款完成請截圖傳給老闆確認 📸</div>
+            <div style="background:rgba(59,109,17,0.1);border-radius:8px;padding:8px 12px;font-size:12px;color:#3B6D11;font-family:inherit" data-i18n="transferNote">匯款完成請截圖傳給老闆確認 📸</div>
           </div>
         </div>
       </div>
       </div>
             <div id="cart-area" style="display:none;margin-bottom:100px">
         <div class="divider"></div>
-        <div class="sec-title">訂單摘要</div>
+        <div class="sec-title" data-i18n="cartTitle">訂單摘要</div>
         <div class="discount-hint" id="discount-hint"></div>
         <div class="cart-box">
           <div id="cart-list"></div>
-          <div class="cart-total-row"><span>合計</span><span id="cart-total">$0</span></div>
+          <div class="cart-total-row"><span data-i18n="cartTotal">合計</span><span id="cart-total">$0</span></div>
         </div>
       </div>
     </div>
     <div class="bottom-bar">
       <div style="display:flex;gap:8px">
-        <button style="flex:0 0 auto;background:transparent;color:#3B6D11;border:2px solid #3B6D11;border-radius:12px;padding:15px 16px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="clearCart()">清空餐點選項</button>
-        <button class="btn-submit" id="btn-submit" style="flex:1" onclick="document.getElementById('btn-submit').dataset.ready!=='1'?scrollToMissing():submitOrder()">送出訂單</button>
+        <button style="flex:0 0 auto;background:transparent;color:#3B6D11;border:2px solid #3B6D11;border-radius:12px;padding:15px 16px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="clearCart()" data-i18n="btnClear">清空餐點選項</button>
+        <button class="btn-submit" id="btn-submit" style="flex:1" onclick="document.getElementById('btn-submit').dataset.ready!=='1'?scrollToMissing():submitOrder()" data-i18n="btnSubmit">送出訂單</button>
       </div>
-      <div class="submit-hint" id="submit-hint">請先選擇取餐地點</div>
+      <div class="submit-hint" id="submit-hint" data-i18n="hintNoLoc">請先選擇取餐地點</div>
     </div>
   </div>
   <div id="view-success" style="display:none">
     <div class="container">
       <div class="success-wrap">
         <div style="font-size:56px;margin-bottom:16px">✅</div>
-        <div style="font-size:20px;font-weight:700;color:#27500A;margin-bottom:8px">訂單已送出！</div>
+        <div style="font-size:20px;font-weight:700;color:#27500A;margin-bottom:8px" data-i18n="successTitle">訂單已送出！</div>
         <div style="font-size:14px;color:#5F5E5A;margin-bottom:24px" id="success-sub"></div>
         <div class="order-info-box" id="success-info"></div>
-        <button id="btn-copy-order" class="btn-again" onclick="copyOrderInfo()" style="margin-bottom:10px">複製訂單資訊</button>
-        <button id="btn-add-cal" class="btn-again" onclick="addToCalendar()" style="margin-bottom:10px">📅 加入行事曆</button>
-        <button class="btn-again" onclick="resetOrder()">返回訂餐首頁</button>
+        <button id="btn-copy-order" class="btn-again" onclick="copyOrderInfo()" style="margin-bottom:10px" data-i18n="btnCopyOrder">複製訂單資訊</button>
+        <button id="btn-add-cal" class="btn-again" onclick="addToCalendar()" style="margin-bottom:10px" data-i18n="btnAddCal">📅 加入行事曆</button>
+        <button class="btn-again" onclick="resetOrder()" data-i18n="btnReset">返回訂餐首頁</button>
       </div>
     </div>
   </div>
@@ -413,14 +420,18 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
       <!-- 脆餅口味 -->
       <div id="stab-content-taco" class="container" style="display:none;padding-bottom:24px">
         <div id="boss-only-taco">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <div style="font-size:15px;font-weight:600;color:#2C2C2A">墨西哥脆餅今日口味</div>
-            <span id="taco-date" style="font-size:13px;color:#888780"></span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:15px;font-weight:600;color:#2C2C2A">墨西哥脆餅預訂狀況</div>
+            <button onclick="renderTacoStats()" style="font-size:12px;padding:5px 10px;background:transparent;border:1px solid rgba(0,0,0,0.12);border-radius:6px;cursor:pointer;font-family:inherit;color:#5F5E5A">重新整理</button>
           </div>
-          <div style="font-size:13px;color:#888780;margin-bottom:10px">勾選今日供應的口味（最多 3 種），前台未勾選的口味會顯示但無法點選</div>
-          <div id="taco-settings"></div>
-          <button onclick="saveTacoSettings()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px">儲存今日口味</button>
-          <button onclick="resetTacoSettings()" style="width:100%;padding:10px;background:transparent;color:#888780;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px">清除設定（全部開放）</button>
+          <div id="taco-stats"></div>
+          <details style="margin-top:14px">
+            <summary style="font-size:13px;color:#888780;cursor:pointer;padding:6px 0;user-select:none">手動指定今日可選口味（進階）</summary>
+            <div style="margin-top:8px;font-size:12px;color:#888780;margin-bottom:8px">若不設定，系統自動依預訂記錄決定</div>
+            <div id="taco-settings"></div>
+            <button onclick="saveTacoSettings()" style="width:100%;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px">儲存今日口味</button>
+            <button onclick="resetTacoSettings()" style="width:100%;padding:10px;background:transparent;color:#888780;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px">清除設定（全部開放）</button>
+          </details>
         </div>
       </div>
 
@@ -585,6 +596,101 @@ const DAYS_AHEAD=7;
 const TIMES=['11:30','12:00','12:30','13:00'];
 const WEEKDAYS=['日','一','二','三','四','五','六'];
 const SAUCES=['和風油醋醬','蜂蜜芥末醬','凱薩醬','不要醬'];
+
+let LANG=localStorage.getItem('lang')||'zh';
+const T={
+  farmName:{zh:'生根有機農場',en:'Shengen Organic Farm'},
+  subtitle:{zh:'有機餐盒預訂',en:'Organic Lunch Box Pre-order'},
+  secContact:{zh:'聯絡資料',en:'Contact Info'},
+  labelName:{zh:'姓名',en:'Name'},
+  required:{zh:'*（必填）',en:'* required'},
+  placeholderName:{zh:'王小明',en:'Your name'},
+  labelPhone:{zh:'電話',en:'Phone'},
+  secLocation:{zh:'取餐地點',en:'Pickup Location'},
+  loadingLocations:{zh:'📍 載入取餐地點中...',en:'📍 Loading locations...'},
+  secDate:{zh:'取餐日期',en:'Pickup Date'},
+  secMenu:{zh:'選擇餐點',en:'Select Items'},
+  tacoNotice:{zh:'🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選',en:'🌮 Tacos: daily max 3 flavors reached'},
+  secTime:{zh:'取餐時間',en:'Pickup Time'},
+  labelNote:{zh:'其他備註',en:'Notes'},
+  placeholderNote:{zh:'選填（例如：其他特殊需求）',en:'Optional (e.g. special requests)'},
+  labelPayment:{zh:'付款方式',en:'Payment'},
+  payCash:{zh:'現場付款',en:'Pay on-site'},
+  payTransfer:{zh:'銀行匯款',en:'Bank Transfer'},
+  linepayTitle:{zh:'掃描 QR Code 付款',en:'Scan QR Code to Pay'},
+  linepayHint:{zh:'掃碼後輸入金額完成付款',en:'Enter amount after scanning'},
+  payScreenshot:{zh:'付款完成請截圖傳給老闆確認 📸',en:'Screenshot payment & send to owner 📸'},
+  transferTitle:{zh:'銀行匯款',en:'Bank Transfer'},
+  transferSubtitle:{zh:'請匯款至以下帳號',en:'Transfer to the account below'},
+  transferBank:{zh:'銀行',en:'Bank'},
+  transferAcctName:{zh:'戶名',en:'Name'},
+  transferAcctNo:{zh:'帳號',en:'Account No.'},
+  transferCopy:{zh:'複製',en:'Copy'},
+  transferNote:{zh:'匯款完成請截圖傳給老闆確認 📸',en:'Screenshot payment & send to owner 📸'},
+  cartTitle:{zh:'訂單摘要',en:'Order Summary'},
+  cartTotal:{zh:'合計',en:'Total'},
+  btnClear:{zh:'清空餐點選項',en:'Clear Items'},
+  btnSubmit:{zh:'送出訂單',en:'Place Order'},
+  successTitle:{zh:'訂單已送出！',en:'Order Placed!'},
+  btnCopyOrder:{zh:'複製訂單資訊',en:'Copy Order Info'},
+  btnAddCal:{zh:'📅 加入行事曆',en:'📅 Add to Calendar'},
+  btnReset:{zh:'返回訂餐首頁',en:'Back to Home'},
+  tomorrow:{zh:'明天',en:'Tomorrow'},
+  paused:{zh:'暫停',en:'Closed'},
+  typeBento:{zh:'便當',en:'Bento'},
+  typeSauced:{zh:'沙拉',en:'Salad'},
+  typeSingle:{zh:'單點',en:'Single'},
+  typeHdrBento:{zh:'便當類',en:'Bento'},
+  typeHdrSauced:{zh:'沙拉類',en:'Salad'},
+  typeHdrSingle:{zh:'單點',en:'Single Items'},
+  tacoLimit:{zh:'🌮 墨西哥脆餅每日限選 3 種口味',en:'🌮 Tacos: max 3 flavors per day'},
+  tacoLimitMax:{zh:'🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選',en:'🌮 Tacos: daily max 3 flavors reached'},
+  tacoLocked:{zh:'墨西哥脆餅每日限選3種口味',en:'Taco daily limit reached'},
+  withCarb:{zh:'要精緻澱粉',en:'With white rice'},
+  noCarb:{zh:'不要精緻澱粉',en:'No white rice'},
+  sauceLabel:{zh:'沙拉醬料',en:'Dressing'},
+  sauceDone:{zh:'✓ 已選完',en:'✓ Done'},
+  cartWithCarb:{zh:'要澱粉',en:'Rice'},
+  cartNoCarb:{zh:'不要澱粉',en:'No rice'},
+  hintReady:{zh:'確認後即送出，老闆會盡快處理',en:'Ready to submit your order'},
+  hintNoLoc:{zh:'請先選擇取餐地點',en:'Please select a pickup location'},
+  hintNoDate:{zh:'請先選擇取餐日期',en:'Please select a pickup date'},
+  hintNoItems:{zh:'請先選擇餐點',en:'Please select menu items'},
+  hintNoTime:{zh:'請選擇取餐時間',en:'Please select a pickup time'},
+  hintNoName:{zh:'請填寫姓名',en:'Please enter your name'},
+  hintNoPhone:{zh:'請填寫電話',en:'Please enter your phone'},
+  hintPhoneFmt:{zh:'電話格式：0912-345-678',en:'Phone format: 0912-345-678'},
+  infoDate:{zh:'取餐日期',en:'Pickup Date'},
+  infoTime:{zh:'取餐時間',en:'Pickup Time'},
+  infoLoc:{zh:'取餐地點',en:'Pickup Location'},
+  infoPay:{zh:'付款方式',en:'Payment'},
+  infoItems:{zh:'訂購內容',en:'Items'},
+  infoDiscount:{zh:'折扣優惠',en:'Discount'},
+  infoTotal:{zh:'合計金額',en:'Total'},
+  infoNote:{zh:'備註',en:'Note'},
+  discountSaved:{zh:'省下',en:'Saved'},
+  monthSuffix:{zh:'月',en:''},
+  weekdaysEN:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+};
+function t(key){return(T[key]&&T[key][LANG])||T[key]?.zh||key;}
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.dataset.i18n;
+    if(T[key])el.textContent=t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const key=el.dataset.i18nPlaceholder;
+    if(T[key])el.placeholder=t(key);
+  });
+  document.getElementById('lang-zh')?.classList.toggle('active',LANG==='zh');
+  document.getElementById('lang-en')?.classList.toggle('active',LANG==='en');
+}
+function setLang(lang){
+  LANG=lang;
+  localStorage.setItem('lang',lang);
+  applyI18n();
+  buildLocations();buildDates();buildMenu();updateCart();updateSubmitBtn();
+}
 const DEFAULT_MENU=[
   {id:'A',name:'義式雞腿便當',price:100,tag:'',active:true,type:'bento'},
   {id:'B',name:'義式雞腿便當＋蔬菜',price:100,tag:'',active:true,type:'bento'},
@@ -633,6 +739,7 @@ async function init(){
 
   // 先用 localStorage 快取或預設值立即渲染，不等 Supabase（避免地點載入卡住）
   MENU=getMenu();
+  applyI18n();
   buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
 
   // 載入 boss email（不放在 code 裡），不阻塞 UI
@@ -978,7 +1085,7 @@ function menuItemCardHTML(item,i){
         <div style="display:flex;align-items:center;gap:8px">
           <span class="drag-handle" title="拖曳排序">⠿</span>
           <span style="font-size:13px;font-weight:600;color:#2C2C2A">${item.name}</span>
-          ${tags.map(t=>`<span style="font-size:11px;background:${t==='微辣'?'#FDECEA':'#EAF3DE'};color:${t==='微辣'?'#A32D2D':'#3B6D11'};padding:1px 6px;border-radius:4px">${t}</span>`).join('')}
+          ${tags.map(tg=>`<span style="font-size:11px;background:${tg==='微辣'?'#FDECEA':'#EAF3DE'};color:${tg==='微辣'?'#A32D2D':'#3B6D11'};padding:1px 6px;border-radius:4px">${tg}</span>`).join('')}
         </div>
         <div style="display:flex;gap:6px">
           <button onclick="saveMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:none;background:#3B6D11;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">儲存修改</button>
@@ -988,8 +1095,12 @@ function menuItemCardHTML(item,i){
       </div>
       <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
         <div style="flex:1;min-width:160px">
-          <div style="font-size:11px;color:#888780;margin-bottom:3px">品項名稱</div>
+          <div style="font-size:11px;color:#888780;margin-bottom:3px">品項名稱（中文）</div>
           <input id="mi-name-${i}" value="${item.name}" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <div style="font-size:11px;color:#888780;margin-bottom:3px">English name</div>
+          <input id="mi-name-en-${i}" value="${item.nameEn||''}" placeholder="e.g. Chicken Bento" style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;font-size:13px;font-family:inherit">
         </div>
         ${item.type==='single'?`<div style="flex:0 0 80px">
           <div style="font-size:11px;color:#888780;margin-bottom:3px">售價 ($)</div>
@@ -1057,7 +1168,9 @@ function saveMenuItem(i){
   const hasCarb=document.getElementById('carb-ck-'+i)?.checked;
   if(!name){alert('品項名稱不能為空');return;}
   const tags=['方便素','微辣'].filter((_,idx)=>document.getElementById(idx===0?`mi-tag-fv-${i}`:`mi-tag-sp-${i}`)?.checked);
+  const nameEn=document.getElementById('mi-name-en-'+i)?.value.trim()||'';
   menu[i].name=name;
+  menu[i].nameEn=nameEn||undefined;
   menu[i].tag=tags;
   menu[i].hasCarb=hasCarb;
   if(menu[i].type==='single'){
@@ -1216,26 +1329,77 @@ function saveLocationSettings(){
   alert('地點設定已儲存！');
 }
 
+async function renderTacoStats(){
+  const box=document.getElementById('taco-stats');
+  if(!box)return;
+  box.innerHTML='<div style="color:#888780;font-size:13px;padding:8px 0">載入中...</div>';
+  const dates=[];
+  const now=new Date();
+  let offset=0;
+  while(dates.length<7){
+    offset++;
+    const d=new Date(now);
+    d.setDate(now.getDate()+offset);
+    const dow=d.getDay();
+    if(dow!==0&&dow!==6)dates.push(d.toISOString().slice(0,10));
+  }
+  try{
+    const {data,error}=await sbTimeout(
+      _sb.from('orders').select('date,items,status').in('date',dates).or('status.is.null,status.neq.cancelled')
+    );
+    if(error)throw error;
+    const stats={};
+    dates.forEach(d=>stats[d]={});
+    (data||[]).forEach(order=>{
+      const items=typeof order.items==='string'?JSON.parse(order.items):(order.items||[]);
+      items.forEach(item=>{
+        if(TACO_IDS.includes(item.id)){
+          const qty=item.qty||(item.normal||0)+(item.noCarb||0)||1;
+          stats[order.date][item.id]=(stats[order.date][item.id]||0)+qty;
+        }
+      });
+    });
+    box.innerHTML=dates.map(iso=>{
+      const flavorStats=stats[iso];
+      const orderedIds=TACO_IDS.filter(id=>flavorStats[id]);
+      const d=new Date(iso+'T00:00:00');
+      const dow=d.getDay();
+      const dateLabel=`${d.getMonth()+1}月${d.getDate()}日（週${WEEKDAYS[dow]}）`;
+      if(!orderedIds.length){
+        return `<div style="padding:10px 12px;background:#F5F4F0;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px;font-weight:500;color:#5F5E5A">${dateLabel}</span>
+          <span style="font-size:12px;color:#B4B2A9">尚無脆餅預訂</span>
+        </div>`;
+      }
+      const flavorList=orderedIds.map(id=>{
+        const item=MENU.find(m=>m.id===id);
+        const name=item?.name.replace('墨西哥脆餅（','').replace('）','')||id;
+        return `<span style="display:inline-block;font-size:12px;background:#EAF3DE;color:#27500A;border-radius:5px;padding:3px 8px;margin:2px 2px 0 0;font-weight:500">${name} ×${flavorStats[id]}</span>`;
+      }).join('');
+      return `<div style="padding:10px 12px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:6px">
+        <div style="font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:6px">${dateLabel}<span style="font-size:11px;font-weight:400;color:#888780;margin-left:6px">（${orderedIds.length} 種口味已預訂）</span></div>
+        <div style="line-height:1.8">${flavorList}</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    box.innerHTML='<div style="color:#A32D2D;font-size:13px;padding:8px 0">載入失敗，請稍後再試</div>';
+  }
+}
 function renderTacoSettings(){
-  const dateEl=document.getElementById('taco-date');
-  if(dateEl) dateEl.textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
   const saved=getTacoSettings();
   const box=document.getElementById('taco-settings');
   if(!box)return;
   box.innerHTML=TACO_IDS.map(id=>{
     const item=MENU.find(m=>m.id===id);
-    const checked=!saved||saved.includes(id);
     const isOn=saved?saved.includes(id):true;
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:6px">
       <input type="checkbox" id="taco-ck-${id}" ${isOn?'checked':''} onchange="onTacoChange()" style="width:18px;height:18px;cursor:pointer;accent-color:#3B6D11">
       <label for="taco-ck-${id}" style="font-size:14px;font-weight:500;color:#2C2C2A;cursor:pointer;flex:1">${item.name.replace('墨西哥脆餅（','').replace('）','')}</label>
-      ${saved&&!isOn?'<span style="font-size:11px;color:#A32D2D;background:#FCEBEB;padding:2px 8px;border-radius:4px">每日限選3種口味</span>':''}
     </div>`;
   }).join('');
 }
 function onTacoChange(){
   const checked=TACO_IDS.filter(id=>document.getElementById('taco-ck-'+id)?.checked);
-  // 超過 2 個就把最新勾的取消
   if(checked.length>3){
     const last=checked[checked.length-1];
     document.getElementById('taco-ck-'+last).checked=false;
@@ -1280,14 +1444,19 @@ function buildMenu(){
   const notice=document.getElementById('taco-notice');
   if(notice)notice.style.display='none'; // 改為在沙拉類區塊內顯示
   const selectedTacos=TACO_IDS.filter(id=>cart[id]&&(cart[id].normal+cart[id].noCarb)>0);
+  const tacoSetting2=getTacoSettings();
+  const dailyPool=tacoSetting2?TACO_IDS.filter(id=>tacoSetting2.includes(id)):TACO_IDS;
+  const dailyRestricted=dailyPool.length<TACO_IDS.length;
   const tacoNoticeText=selectedTacos.length>=3
-    ?'🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選'
-    :'🌮 墨西哥脆餅每日限選 3 種口味';
+    ?'🌮 已選 3 種脆餅口味，如需更換請先減少數量'
+    :dailyRestricted
+      ?`🌮 今日供應口味：${dailyPool.map(id=>{const m=MENU.find(x=>x.id===id);return m?m.name.replace('墨西哥脆餅（','').replace('）',''):id;}).join('、')}`
+      :'';
 
   const TYPE_META={
-    bento:{label:'便當',bg:'#FAEEDA',color:'#BA7517',hdr:'便當類'},
-    sauced:{label:'沙拉',bg:'#EAF3DE',color:'#3B6D11',hdr:'沙拉類'},
-    single:{label:'單點',bg:'#EBF5FF',color:'#1A56DB',hdr:'單點'},
+    bento:{label:t('typeBento'),bg:'#FAEEDA',color:'#BA7517',hdr:t('typeHdrBento')},
+    sauced:{label:t('typeSauced'),bg:'#EAF3DE',color:'#3B6D11',hdr:t('typeHdrSauced')},
+    single:{label:t('typeSingle'),bg:'#EBF5FF',color:'#1A56DB',hdr:t('typeHdrSingle')},
   };
   const activeItems=MENU.filter(item=>item.active!==false);
   const sections=[
@@ -1300,6 +1469,8 @@ function buildMenu(){
   function renderItem(item){
     const isTaco=TACO_IDS.includes(item.id);
     const isLocked=isTaco&&!availTacos.includes(item.id);
+    const lockedReason=isLocked?(dailyPool.includes(item.id)?'personal':'daily'):'';
+
     const e=getEntry(item.id);
     const total=e.normal+e.noCarb;
     const sTotal=sauceTotalForId(item.id);
@@ -1317,8 +1488,8 @@ function buildMenu(){
     let sauceHTML='';
     if(is139&&sel){
       const indicator=sauceLeft>0
-        ?`<span style="font-size:11px;color:#BA7517;font-weight:500">還差 ${sauceLeft} 份未選</span>`
-        :`<span style="font-size:11px;color:#3B6D11;font-weight:500">✓ 已選完</span>`;
+        ?`<span style="font-size:11px;color:#BA7517;font-weight:500">${LANG==='en'?`${sauceLeft} dressing(s) left`:`還差 ${sauceLeft} 份未選`}</span>`
+        :`<span style="font-size:11px;color:#3B6D11;font-weight:500">${t('sauceDone')}</span>`;
       const rows=SAUCES.map(s=>{
         const cnt=e.sauces[s]||0;
         const canAdd=sauceLeft>0;
@@ -1333,21 +1504,26 @@ function buildMenu(){
       }).join('');
       sauceHTML=`<div class="sauce-section" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div class="expand-label">沙拉醬料</div>${indicator}
+          <div class="expand-label">${t('sauceLabel')}</div>${indicator}
         </div>${rows}</div>`;
     }
 
+    const lockedBadge=lockedReason==='daily'
+      ?`<span style="font-size:11px;color:#888780;background:#E0DFD9;padding:3px 8px;border-radius:4px;font-weight:500">今日不供應</span>`
+      :lockedReason==='personal'
+      ?`<span style="font-size:11px;color:#BA7517;background:#FAEEDA;padding:3px 8px;border-radius:4px;font-weight:500">已選 3 種</span>`
+      :'';
     d.innerHTML=isLocked?`
       <div class="menu-card-row">
         <div>
           <div class="m-name" style="color:#888780">${item.name}</div>
           <div class="m-price" style="color:#B4B2A9">$${item.price}</div>
         </div>
-        <span style="font-size:11px;color:#A32D2D;background:#FCEBEB;padding:3px 8px;border-radius:4px;font-weight:500">墨西哥脆餅每日限選3種口味</span>
+        ${lockedBadge}
       </div>`:`
       <div class="menu-card-row">
         <div>
-          <div class="m-name">${item.name}${typePill}${(Array.isArray(item.tag)?item.tag:[]).map(t=>`<span class="m-tag" style="${t==='微辣'?'background:#FDECEA;color:#A32D2D':''}">${t}</span>`).join('')}</div>
+          <div class="m-name">${(LANG==='en'&&item.nameEn)||item.name}${typePill}${(Array.isArray(item.tag)?item.tag:[]).map(tg=>`<span class="m-tag" style="${tg==='微辣'?'background:#FDECEA;color:#A32D2D':''}">${tg}</span>`).join('')}</div>
           <div class="m-price">$${getItemPrice(item)}</div>
         </div>
         <div class="qty-row">
@@ -1357,9 +1533,9 @@ function buildMenu(){
         </div>
       </div>
       ${sel?`<div class="expand-box">
-        ${itemHasCarb(item)?`<div class="expand-label">澱粉</div>
+        ${itemHasCarb(item)?`<div class="expand-label">${LANG==='en'?'Rice':'澱粉'}</div>
         <div class="expand-row">
-          <span style="font-size:12px;color:${e.normal>0?'#3B6D11':'#5F5E5A'};font-weight:${e.normal>0?'600':'400'}">${e.normal>0?'<b>要精緻澱粉</b>':'要精緻澱粉'}</span>
+          <span style="font-size:12px;color:${e.normal>0?'#3B6D11':'#5F5E5A'};font-weight:${e.normal>0?'600':'400'}">${e.normal>0?`<b>${t('withCarb')}</b>`:t('withCarb')}</span>
           <div class="qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn" onclick="chgQty('${item.id}','normal',-1,event)">−</button>
             <span style="font-size:13px;font-weight:600;min-width:24px;text-align:center;color:#27500A">${e.normal}</span>
@@ -1367,7 +1543,7 @@ function buildMenu(){
           </div>
         </div>
         <div class="expand-row">
-          <span style="font-size:12px;color:${e.noCarb>0?'#3B6D11':'#5F5E5A'};font-weight:${e.noCarb>0?'600':'400'}">${e.noCarb>0?'<b>不要精緻澱粉</b>':'不要精緻澱粉'}</span>
+          <span style="font-size:12px;color:${e.noCarb>0?'#3B6D11':'#5F5E5A'};font-weight:${e.noCarb>0?'600':'400'}">${e.noCarb>0?`<b>${t('noCarb')}</b>`:t('noCarb')}</span>
           <div class="qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn" style="border-color:#639922" onclick="chgQty('${item.id}','noCarb',-1,event)">−</button>
             <span style="font-size:13px;font-weight:600;min-width:24px;text-align:center;color:#3B6D11">${e.noCarb}</span>
@@ -1387,9 +1563,10 @@ function buildMenu(){
       hdr.textContent=TYPE_META[type]?.hdr||type;
       g.appendChild(hdr);
     }
-    if(type==='sauced'&&hasTacos){
+    if(type==='sauced'&&hasTacos&&tacoNoticeText){
       const tn=document.createElement('div');
-      tn.style.cssText='font-size:12px;color:#BA7517;background:#FAEEDA;border-radius:8px;padding:8px 12px;margin-bottom:4px';
+      const isPersonal=tacoNoticeText.startsWith('🌮 已選');
+      tn.style.cssText=`font-size:12px;color:${isPersonal?'#A32D2D':'#3B6D11'};background:${isPersonal?'#FCEBEB':'#EAF3DE'};border-radius:8px;padding:8px 12px;margin-bottom:4px`;
       tn.textContent=tacoNoticeText;
       g.appendChild(tn);
     }
@@ -1462,7 +1639,7 @@ function buildDates(){
     const dow=d.getDay();
     if(dow===0||dow===6){offset++;continue;}
     const iso=d.toISOString().slice(0,10);
-    const dayLabel=offset===1?'明天':'週'+WEEKDAYS[dow];
+    const dayLabel=offset===1?t('tomorrow'):(LANG==='en'?T.weekdaysEN[dow]:'週'+WEEKDAYS[dow]);
     // 檢查該地點是否暫停
     const pausedDates=getPausedDates();
     const locPaused=selectedLocation&&pausedDates[selectedLocation]?pausedDates[selectedLocation]:{};
@@ -1474,11 +1651,11 @@ function buildDates(){
       btn.style.cssText='opacity:0.4;cursor:not-allowed;background:#F5F4F0';
     }
     btn.innerHTML=`
-      <div class="d-month">${d.getMonth()+1}月</div>
+      <div class="d-month">${LANG==='en'?(d.getMonth()+1)+'/':((d.getMonth()+1)+'月')}</div>
       <div class="d-day">${d.getDate()}</div>
-      <div class="d-weekday">週${WEEKDAYS[dow]}</div>
-      ${offset===1?'<div class="d-tag">明天</div>':''}
-      ${isPaused?'<div style="font-size:10px;color:#A32D2D;margin-top:2px">暫停</div>':''}`;
+      <div class="d-weekday">${LANG==='en'?T.weekdaysEN[dow]:'週'+WEEKDAYS[dow]}</div>
+      ${offset===1?`<div class="d-tag">${t('tomorrow')}</div>`:''}
+      ${isPaused?`<div style="font-size:10px;color:#A32D2D;margin-top:2px">${t('paused')}</div>`:''}` ;
     btn.onclick=()=>{if(!isPaused)selectDate(iso);};
     g.appendChild(btn);
     count++;offset++;
@@ -1624,8 +1801,8 @@ function updateCart(){
     const sub=unitPrice*qty;
     total+=sub;saved+=(basePrice-unitPrice)*qty;
     const details=[];
-    if(e.normal>0)details.push(`<span style="color:#5F5E5A">要澱粉 ×${e.normal}</span>`);
-    if(e.noCarb>0)details.push(`<span style="color:#3B6D11;font-weight:500">不要澱粉 ×${e.noCarb}</span>`);
+    if(e.normal>0)details.push(`<span style="color:#5F5E5A">${t('cartWithCarb')} ×${e.normal}</span>`);
+    if(e.noCarb>0)details.push(`<span style="color:#3B6D11;font-weight:500">${t('cartNoCarb')} ×${e.noCarb}</span>`);
     Object.entries(e.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>details.push(`<span style="color:#5F5E5A">${s} ×${v}</span>`));
     const priceLine=hasDiscount&&unitPrice<basePrice
       ?`<span style="color:#888780;text-decoration:line-through;font-size:12px">$${basePrice}</span>&nbsp;<span style="color:#3B6D11;font-weight:700">$${unitPrice}</span><span style="color:#888780;font-size:12px"> ×${qty}</span>`
@@ -1634,7 +1811,7 @@ function updateCart(){
     row.style.cssText='padding:10px 0;border-bottom:1px solid rgba(59,109,17,0.15)';
     row.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
-        <span style="font-size:14px;font-weight:600;color:#2C2C2A">${item.name}</span>
+        <span style="font-size:14px;font-weight:600;color:#2C2C2A">${(LANG==='en'&&item.nameEn)||item.name}</span>
         <span style="font-size:15px;font-weight:700;color:#3B6D11">$${sub}</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
@@ -1646,12 +1823,16 @@ function updateCart(){
   const hint=document.getElementById('discount-hint');
   const p=getLocationPricing();
   if(hasDiscount){
-    hint.innerHTML=`🎉 已享折扣，共省下 <strong style="color:#3B6D11">$${saved}</strong>`;
+    hint.innerHTML=LANG==='en'
+      ?`🎉 Discount applied, saved <strong style="color:#3B6D11">$${saved}</strong>`
+      :`🎉 已享折扣，共省下 <strong style="color:#3B6D11">$${saved}</strong>`;
     hint.style.background='#EAF3DE';hint.style.color='#27500A';
   } else if(p.discount){
     const minQty=p.discountMinQty||3;
     const need=minQty-totalQty();
-    hint.innerHTML=`再加 <strong>${need}</strong> 個便當即享折扣（$${p.bentoPrice}→<strong>$${p.discountBento}</strong>、$${p.saucedPrice}→<strong>$${p.discountSauced}</strong>）`;
+    hint.innerHTML=LANG==='en'
+      ?`Add <strong>${need}</strong> more to get a discount ($${p.bentoPrice}→<strong>$${p.discountBento}</strong>, $${p.saucedPrice}→<strong>$${p.discountSauced}</strong>)`
+      :`再加 <strong>${need}</strong> 個便當即享折扣（$${p.bentoPrice}→<strong>$${p.discountBento}</strong>、$${p.saucedPrice}→<strong>$${p.discountSauced}</strong>）`;
     hint.style.background='#F5F4F0';hint.style.color='#888780';
   } else {
     hint.innerHTML='';hint.style.background='transparent';
@@ -1671,24 +1852,27 @@ function updateSubmitBtn(){
   const phone=phoneEl.value.trim();
   const phoneOk=isValidPhone(phone);
   let msg='';
-  if(!selectedLocation) msg='請先選擇取餐地點';
-  else if(!selectedDate) msg='請先選擇取餐日期';
-  else if(!hasItems) msg='請先選擇餐點';
-  else if(!selectedTime) msg='請選擇取餐時間';
-  else if(!name) msg='請填寫姓名';
-  else if(!phone) msg='請填寫電話';
-  else if(!phoneOk) msg='電話格式：0912-345-678';
+  if(!selectedLocation) msg=t('hintNoLoc');
+  else if(!selectedDate) msg=t('hintNoDate');
+  else if(!hasItems) msg=t('hintNoItems');
+  else if(!selectedTime) msg=t('hintNoTime');
+  else if(!name) msg=t('hintNoName');
+  else if(!phone) msg=t('hintNoPhone');
+  else if(!phoneOk) msg=t('hintPhoneFmt');
   else{
     for(const id of Object.keys(cart)){
       const item=MENU.find(m=>m.id===id);
       if(isSauced(item)){
         const diff=totalQtyForId(id)-sauceTotalForId(id);
-        if(diff>0){msg=`${item.name} 還有 ${diff} 份未選醬料`;break;}
+        if(diff>0){
+          msg=LANG==='en'?`${item.nameEn||item.name}: ${diff} dressing(s) not selected`:`${item.name} 還有 ${diff} 份未選醬料`;
+          break;
+        }
       }
     }
   }
   const ready=!msg;
-  hint.textContent=ready?'確認後即送出，老闆會盡快處理':msg;
+  hint.textContent=ready?t('hintReady'):msg;
   hint.style.color=ready?'#888780':'#A32D2D';
   btn.style.background=ready?'#3B6D11':'#B4B2A9';
   btn.style.cursor=ready?'pointer':'not-allowed';
@@ -1774,22 +1958,25 @@ async function submitOrder(){
   // 寫入 Supabase
   const saveResult=await sbUpsertOrder(order);
   if(!saveResult){alert('訂單送出失敗，請稍後再試');return;}
-  document.getElementById('success-sub').innerHTML=`感謝您的訂購 😊 訂單編號 ${order.id}<br>老闆收到後會備餐，請記得準時取餐～`;
+  document.getElementById('success-sub').innerHTML=LANG==='en'
+    ?`Thank you for your order 😊 Order #${order.id}<br>We'll prepare your meal — please pick up on time!`
+    :`感謝您的訂購 😊 訂單編號 ${order.id}<br>老闆收到後會備餐，請記得準時取餐～`;
+  const payLabel=order.payMethod==='linepay'?'LINE Pay':order.payMethod==='transfer'?t('payTransfer'):t('payCash');
   document.getElementById('success-info').innerHTML=`
-    <div class="order-info-row"><span class="k">取餐日期</span><span class="v">${dateLabel}</span></div>
-    <div class="order-info-row"><span class="k">取餐時間</span><span class="v">${order.time}</span></div>
-    <div class="order-info-row"><span class="k">取餐地點</span><span class="v">${order.location}</span></div>
-    <div class="order-info-row"><span class="k">付款方式</span><span class="v">${order.payMethod==='linepay'?'LINE Pay':order.payMethod==='transfer'?'銀行匯款':'現場付款'}</span></div>
-    <div class="order-info-row" style="align-items:flex-start"><span class="k">訂購內容</span><span class="v" style="text-align:right;line-height:2">${items.map(i=>{
+    <div class="order-info-row" data-info-key="date"><span class="k">${t('infoDate')}</span><span class="v">${dateLabel}</span></div>
+    <div class="order-info-row" data-info-key="time"><span class="k">${t('infoTime')}</span><span class="v">${order.time}</span></div>
+    <div class="order-info-row" data-info-key="location"><span class="k">${t('infoLoc')}</span><span class="v">${order.location}</span></div>
+    <div class="order-info-row" data-info-key="pay"><span class="k">${t('infoPay')}</span><span class="v">${payLabel}</span></div>
+    <div class="order-info-row" data-info-key="items" style="align-items:flex-start"><span class="k">${t('infoItems')}</span><span class="v" style="text-align:right;line-height:2">${items.map(i=>{
       let dl=[];
-      if(i.normal>0)dl.push(`要澱粉×${i.normal}`);
-      if(i.noCarb>0)dl.push(`<span style="color:#3B6D11">不要澱粉×${i.noCarb}</span>`);
+      if(i.normal>0)dl.push(`${t('cartWithCarb')}×${i.normal}`);
+      if(i.noCarb>0)dl.push(`<span style="color:#3B6D11">${t('cartNoCarb')}×${i.noCarb}</span>`);
       Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>dl.push(`${s}×${v}`));
-      return `${i.name}<br><small style="color:#5F5E5A">${dl.join('、')}</small>`;
+      return `${i.name}<br><small style="color:#5F5E5A">${dl.join(LANG==='en'?', ':'、')}</small>`;
     }).join('<br>')}</span></div>
-    ${saved>0?`<div class="order-info-row"><span class="k">折扣優惠</span><span class="v" style="color:#3B6D11">省下 $${saved}</span></div>`:''}
-    <div class="order-info-row"><span class="k">合計金額</span><span class="v" style="color:#3B6D11;font-size:16px;font-weight:700">$${total}</span></div>
-    ${order.note?`<div class="order-info-row"><span class="k">備註</span><span class="v">${escapeHtml(order.note)}</span></div>`:''}`;
+    ${saved>0?`<div class="order-info-row"><span class="k">${t('infoDiscount')}</span><span class="v" style="color:#3B6D11">${t('discountSaved')} $${saved}</span></div>`:''}
+    <div class="order-info-row"><span class="k">${t('infoTotal')}</span><span class="v" style="color:#3B6D11;font-size:16px;font-weight:700">$${total}</span></div>
+    ${order.note?`<div class="order-info-row"><span class="k">${t('infoNote')}</span><span class="v">${escapeHtml(order.note)}</span></div>`:''}`;
   document.getElementById('view-order').style.display='none';
   document.getElementById('view-success').style.display='block';
 }
@@ -1804,12 +1991,12 @@ function addToCalendar(){
   if(!rows)return;
   let date='',time='',location='',items='',orderId='';
   rows.forEach(row=>{
-    const k=row.querySelector('.k')?.textContent||'';
+    const key=row.dataset.infoKey||'';
     const v=row.querySelector('.v')?.innerText||row.querySelector('.v')?.textContent||'';
-    if(k==='取餐日期')date=v;
-    if(k==='取餐時間')time=v;
-    if(k==='取餐地點')location=v;
-    if(k==='訂購內容')items=v.replace(/\n/g,' ');
+    if(key==='date')date=v;
+    if(key==='time')time=v;
+    if(key==='location')location=v;
+    if(key==='items')items=v.replace(/\n/g,' ');
   });
   orderId=document.getElementById('success-sub')?.textContent?.match(/#[\d-]+/)?.[0]||'';
 
@@ -2200,6 +2387,7 @@ function switchSettingsTab(tab){
     if(btn){btn.style.color=active?'#3B6D11':'#888780';btn.style.borderBottom=active?'2.5px solid #3B6D11':'2.5px solid transparent';}
     if(panel)panel.style.display=active?'block':'none';
   });
+  if(tab==='taco')renderTacoStats();
 }
 function switchTab(tab){
   currentTab=tab;
@@ -2339,6 +2527,7 @@ async function renderDash(){
   renderAdminLocations();
   renderMenuSettings();
   renderTacoSettings();
+  renderTacoStats();
   renderLocFilter();
   renderOrders();
 }
