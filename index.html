@@ -152,11 +152,11 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <label>電話 <span style="color:#A32D2D">*（必填）</span></label>
         <input id="f-phone" type="tel" placeholder="0912-345-678" autocomplete="off" maxlength="12" oninput="formatPhone(this);updateSubmitBtn()" onchange="formatPhone(this);updateSubmitBtn()" onblur="formatPhone(this);updateSubmitBtn()" inputmode="numeric">
       </div>
-      <div class="sec-title">取餐日期 <span style="color:#A32D2D">*（必填）</span></div>
-      <div class="date-grid" id="date-grid"></div>
-      <div class="divider"></div>
       <div class="sec-title">取餐地點 <span style="color:#A32D2D">*（必填）</span></div>
       <div id="location-group"><div style="font-size:13px;color:#888780;padding:8px 0">📍 載入取餐地點中...</div></div>
+      <div class="divider"></div>
+      <div class="sec-title">取餐日期 <span style="color:#A32D2D">*（必填）</span></div>
+      <div class="date-grid" id="date-grid"></div>
       <div class="divider"></div>
 
       <div id="menu-section" style="display:none">
@@ -240,7 +240,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <button style="flex:0 0 auto;background:transparent;color:#3B6D11;border:2px solid #3B6D11;border-radius:12px;padding:15px 16px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="clearCart()">清空餐點選項</button>
         <button class="btn-submit" id="btn-submit" style="flex:1" onclick="document.getElementById('btn-submit').dataset.ready!=='1'?scrollToMissing():submitOrder()">送出訂單</button>
       </div>
-      <div class="submit-hint" id="submit-hint">請先選擇取餐日期</div>
+      <div class="submit-hint" id="submit-hint">請先選擇取餐地點</div>
     </div>
   </div>
   <div id="view-success" style="display:none">
@@ -1672,8 +1672,8 @@ function updateSubmitBtn(){
   const phone=phoneEl.value.trim();
   const phoneOk=isValidPhone(phone);
   let msg='';
-  if(!selectedDate) msg='請先選擇取餐日期';
-  else if(!selectedLocation) msg='請先選擇取餐地點';
+  if(!selectedLocation) msg='請先選擇取餐地點';
+  else if(!selectedDate) msg='請先選擇取餐日期';
   else if(!hasItems) msg='請先選擇餐點';
   else if(!selectedTime) msg='請選擇取餐時間';
   else if(!name) msg='請填寫姓名';
@@ -1707,8 +1707,8 @@ function scrollToMissing(){
   if(!name){scrollTo('f-name');document.getElementById('f-name')?.focus();return;}
   const phone=document.getElementById('f-phone')?.value.trim();
   if(!phone||!isValidPhone(phone)){scrollTo('f-phone');document.getElementById('f-phone')?.focus();return;}
-  if(!selectedDate){scrollTo('date-grid');return;}
   if(!selectedLocation){scrollTo('location-group');return;}
+  if(!selectedDate){scrollTo('date-grid');return;}
   if(Object.keys(cart).length===0){scrollTo('menu-section');return;}
   // 醬料未選完 → 捲到該品項
   for(const id of Object.keys(cart)){
