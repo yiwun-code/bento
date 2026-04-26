@@ -114,15 +114,14 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .btn-done{background:#3B6D11;color:#fff}
 .btn-restore{background:#F5F4F0;color:#5F5E5A;border:1px solid rgba(0,0,0,0.12)}
 .empty{text-align:center;padding:48px 16px;color:#888780;font-size:14px}
-.float-nav{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px}
+.float-nav{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px;align-items:center}
 .float-btn{background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;color:#2C2C2A;font-family:inherit}
 .float-btn.hide{display:none}
+.float-btn.lang-nav{padding:6px 10px;font-size:12px;font-weight:600}
+.float-btn.lang-nav.active{background:#3B6D11;color:#fff;border-color:#3B6D11}
 .drag-handle{cursor:grab;color:#bbb;font-size:18px;padding:2px 6px;user-select:none;flex-shrink:0;line-height:1}
 .drag-handle:active{cursor:grabbing;color:#3B6D11}
 .sortable-ghost{opacity:0.4;background:#EAF3DE!important}
-.lang-toggle{display:flex;gap:4px;background:rgba(255,255,255,0.15);border-radius:8px;padding:3px;flex-shrink:0}
-.lang-btn{background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all 0.12s}
-.lang-btn.active{background:rgba(255,255,255,0.25);color:#fff}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -132,6 +131,8 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 <body>
 
 <div class="float-nav">
+  <button class="float-btn lang-nav" onclick="setLang('zh')" id="lang-zh">中</button>
+  <button class="float-btn lang-nav" onclick="setLang('en')" id="lang-en">EN</button>
   <button class="float-btn" id="nav-to-admin" onclick="goAdmin()">後台管理</button>
 </div>
 
@@ -142,10 +143,6 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
       <h1>🌱 <span data-i18n="farmName">生根有機農場</span></h1>
       <div class="sub" data-i18n="subtitle">有機餐盒預訂</div>
       <div class="sub" id="today-label"></div>
-    </div>
-    <div class="lang-toggle">
-      <button class="lang-btn" onclick="setLang('zh')" id="lang-zh">中</button>
-      <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
     </div>
   </header>
   <div id="view-order">
@@ -444,8 +441,14 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
           <div id="new-loc-form" style="display:none;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:14px;margin-top:8px">
             <div style="font-size:13px;font-weight:600;color:#2C2C2A;margin-bottom:10px">新增地點</div>
             <div style="display:flex;flex-direction:column;gap:8px">
-              <input id="new-loc-area" type="text" placeholder="區域（例如：中和）" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
-              <input id="new-loc-name" type="text" placeholder="地點名稱（例如：遠東世紀廣場）" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <input id="new-loc-area" type="text" placeholder="區域（例如：中和）" style="padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+                <input id="new-loc-area-en" type="text" placeholder="District in English" style="padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <input id="new-loc-name" type="text" placeholder="地點名稱（例如：遠東世紀廣場）" style="padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+                <input id="new-loc-name-en" type="text" placeholder="Location name in English" style="padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#2C2C2A">
+              </div>
               <div style="display:flex;gap:8px">
                 <button onclick="addLocation()" style="flex:1;padding:11px;background:#3B6D11;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">確定新增</button>
                 <button onclick="toggleNewLocForm(false)" style="flex:1;padding:11px;background:#F5F4F0;color:#5F5E5A;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit">取消</button>
@@ -639,10 +642,10 @@ const T={
   paused:{zh:'暫停',en:'Closed'},
   typeBento:{zh:'便當',en:'Bento'},
   typeSauced:{zh:'沙拉',en:'Salad'},
-  typeSingle:{zh:'單點',en:'Single'},
+  typeSingle:{zh:'單點',en:'À La Carte'},
   typeHdrBento:{zh:'便當類',en:'Bento'},
   typeHdrSauced:{zh:'沙拉類',en:'Salad'},
-  typeHdrSingle:{zh:'單點',en:'Single Items'},
+  typeHdrSingle:{zh:'單點',en:'À La Carte'},
   tacoLimit:{zh:'🌮 墨西哥脆餅每日限選 3 種口味',en:'🌮 Tacos: max 3 flavors per day'},
   tacoLimitMax:{zh:'🌮 墨西哥脆餅每日限選 3 種口味，已達上限後無法加選',en:'🌮 Tacos: daily max 3 flavors reached'},
   tacoLocked:{zh:'墨西哥脆餅每日限選3種口味',en:'Taco daily limit reached'},
@@ -684,6 +687,7 @@ function applyI18n(){
   });
   document.getElementById('lang-zh')?.classList.toggle('active',LANG==='zh');
   document.getElementById('lang-en')?.classList.toggle('active',LANG==='en');
+  document.documentElement.lang=LANG==='en'?'en':'zh-TW';
 }
 function setLang(lang){
   LANG=lang;
@@ -810,9 +814,11 @@ function buildLocations(){
   selectedLocation='';
   getLocations().filter(loc=>loc.active===true).forEach(loc=>{
     const label=`${loc.area} ${loc.name}`;
+    const displayArea=LANG==='en'?(loc.areaEn||loc.area):loc.area;
+    const displayName=LANG==='en'?(loc.nameEn||loc.name):loc.name;
     const d=document.createElement('div');
     d.className='loc-btn';
-    d.innerHTML=`<div class="loc-dot"></div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(loc.area)}　<span style="font-weight:600;color:#2C2C2A">${escapeHtml(loc.name)}</span></div>`;
+    d.innerHTML=`<div class="loc-dot"></div><div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(displayArea)}　<span>${escapeHtml(displayName)}</span></div>${LANG==='en'&&(loc.areaEn||loc.nameEn)?`<div style="font-size:11px;color:#888780;margin-top:1px">${escapeHtml(loc.area)} ${escapeHtml(loc.name)}</div>`:''}</div>`;
     d.onclick=()=>selectLocation(label,d);
     g.appendChild(d);
   });
@@ -838,6 +844,16 @@ function renderAdminLocations(){
           <button data-lockey="${escapeHtml(key)}" onclick="showPauseCalendar(this.dataset.lockey)" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#5F5E5A;font-size:12px;cursor:pointer;font-family:inherit">📅 設定休息日</button>
           <button onclick="toggleLocation(${i})" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:${isActive?'#FAEEDA':'#EAF3DE'};color:${isActive?'#BA7517':'#3B6D11'};font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">${isActive?'下架':'上架'}</button>
           <button onclick="removeLocation(${i})" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(163,45,45,0.2);background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer;font-family:inherit">刪除</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">District (English)</div>
+          <input id="loc-areaEn-${i}" value="${loc.areaEn||''}" placeholder="e.g. Zhonghe" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;font-family:inherit">
+        </div>
+        <div>
+          <div style="font-size:12px;color:#5F5E5A;margin-bottom:4px">Location name (English)</div>
+          <input id="loc-nameEn-${i}" value="${loc.nameEn||''}" placeholder="e.g. Far Eastern Plaza" style="width:100%;padding:8px 10px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:13px;font-family:inherit">
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -878,11 +894,15 @@ function addLocation(){
   const area=document.getElementById('new-loc-area').value.trim();
   const name=document.getElementById('new-loc-name').value.trim();
   if(!area||!name){alert('請填寫區域和地點名稱');return;}
+  const areaEn=document.getElementById('new-loc-area-en').value.trim()||undefined;
+  const nameEn=document.getElementById('new-loc-name-en').value.trim()||undefined;
   const locs=getLocations();
-  locs.push({area,name,active:true});
+  locs.push({area,name,...(areaEn&&{areaEn}),...(nameEn&&{nameEn}),active:true});
   saveLocations(locs);
   document.getElementById('new-loc-area').value='';
   document.getElementById('new-loc-name').value='';
+  document.getElementById('new-loc-area-en').value='';
+  document.getElementById('new-loc-name-en').value='';
   toggleNewLocForm(false);
   renderAdminLocations();
   buildLocations();
@@ -1311,10 +1331,13 @@ function savePricingSettings(){
 }
 
 function saveLocationSettings(){
-  // 儲存定價
   const data=getPricingData();
   const locs=getLocations();
-  locs.forEach(l=>{
+  locs.forEach((l,i)=>{
+    const areaEn=document.getElementById('loc-areaEn-'+i)?.value.trim()||'';
+    const nameEn=document.getElementById('loc-nameEn-'+i)?.value.trim()||'';
+    if(areaEn)l.areaEn=areaEn; else delete l.areaEn;
+    if(nameEn)l.nameEn=nameEn; else delete l.nameEn;
     const key=l.area+' '+l.name;
     const bento=parseInt(document.getElementById('p-bento-'+key)?.value)||115;
     const sauced=parseInt(document.getElementById('p-sauced-'+key)?.value)||139;
@@ -1324,6 +1347,7 @@ function saveLocationSettings(){
     const dsauced=parseInt(document.getElementById('p-dsauced-'+key)?.value)||sauced;
     data[key]={bentoPrice:bento,saucedPrice:sauced,discount:disc,discountMinQty:minQty,discountBento:dbento,discountSauced:dsauced};
   });
+  saveLocations(locs);
   savePricingData(data);
   sbUpsertSetting('pricing',data);
   alert('地點設定已儲存！');
