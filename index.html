@@ -117,8 +117,9 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .float-nav{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px;align-items:center}
 .float-btn{background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;color:#2C2C2A;font-family:inherit}
 .float-btn.hide{display:none}
-.float-btn.lang-nav{padding:6px 10px;font-size:12px;font-weight:600}
-.float-btn.lang-nav.active{background:#3B6D11;color:#fff;border-color:#3B6D11}
+.lang-pill{display:flex;background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:2px;gap:0}
+.lang-pill-btn{background:transparent;border:none;font-size:12px;font-weight:600;padding:5px 10px;border-radius:16px;cursor:pointer;color:#888780;font-family:inherit;transition:all 0.12s;line-height:1}
+.lang-pill-btn.active{background:#3B6D11;color:#fff}
 .drag-handle{cursor:grab;color:#bbb;font-size:18px;padding:2px 6px;user-select:none;flex-shrink:0;line-height:1}
 .drag-handle:active{cursor:grabbing;color:#3B6D11}
 .sortable-ghost{opacity:0.4;background:#EAF3DE!important}
@@ -131,8 +132,10 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 <body>
 
 <div class="float-nav">
-  <button class="float-btn lang-nav" onclick="setLang('zh')" id="lang-zh">中</button>
-  <button class="float-btn lang-nav" onclick="setLang('en')" id="lang-en">EN</button>
+  <div class="lang-pill">
+    <button class="lang-pill-btn" onclick="setLang('zh')" id="lang-zh">中</button>
+    <button class="lang-pill-btn" onclick="setLang('en')" id="lang-en">EN</button>
+  </div>
   <button class="float-btn" id="nav-to-admin" onclick="goAdmin()">後台管理</button>
 </div>
 
