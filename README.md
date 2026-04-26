@@ -11,7 +11,7 @@ A mobile-first, bilingual (繁中 / EN) pre-order web app built for a real organ
 | Layer | Choice | Why |
 |---|---|---|
 | Frontend | Vanilla HTML/CSS/JS (single file) | Zero build step, instant deploy via GitHub Pages, easy for non-technical owner to host |
-| Backend / DB | Supabase (PostgreSQL + REST) | Managed auth, real-time capable, generous free tier |
+| Backend / DB | Supabase (PostgreSQL + REST) | Managed auth, RLS for data access control, real-time capable, generous free tier |
 | Auth | Supabase email auth | Role-based: boss vs. helper, different admin views |
 | Hosting | GitHub Pages | Free, no server to manage |
 
@@ -21,7 +21,7 @@ A mobile-first, bilingual (繁中 / EN) pre-order web app built for a real organ
 
 ### Customer-facing
 - Date and pickup location selection (location availability varies by date)
-- Menu grouped by type: 便當 (bento) / 沙拉 (salad) / 單點 À la carte
+- Menu grouped by type: 便當 (bento) / 沙拉 (salad) / 單點 À la carte (available as standalone items or add-ons alongside a main)
 - Per-item options: with/without carb, sauce selection
 - Bulk discount automatically applied when ordering 3+ items
 - Bilingual UI — switch between 中文 and English mid-flow
@@ -52,6 +52,16 @@ All static strings use `data-i18n` attributes resolved by a `T` translation obje
 
 **Location-aware pricing**
 Each pickup location can have its own price tier, discount threshold, and available dates. The menu renders prices dynamically based on the selected location, and the date picker only shows dates that location is active.
+
+---
+
+## Screenshots
+
+> Add screenshots to a `/screenshots` folder and update the paths below.
+
+| Customer ordering flow | Admin dashboard | Bilingual UI (中 / EN) |
+|---|---|---|
+| ![ordering flow](screenshots/ordering.png) | ![admin](screenshots/admin.png) | ![bilingual](screenshots/bilingual.png) |
 
 ---
 
