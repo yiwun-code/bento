@@ -1757,7 +1757,7 @@ async function submitOrder(){
     const basePrice=getItemPrice(item);
     const unitPrice=discountedPrice(basePrice,hasDiscount);
     const qty=e.normal+e.noCarb;
-    return{name:item.name,qty,normal:e.normal,noCarb:e.noCarb,sauces:e.sauces||{},origPrice:basePrice,unitPrice};
+    return{id,name:item.name,qty,normal:e.normal,noCarb:e.noCarb,sauces:e.sauces||{},origPrice:basePrice,unitPrice};
   });
   const total=items.reduce((s,i)=>s+i.qty*i.unitPrice,0);
   const origTotal=items.reduce((s,i)=>s+i.qty*i.origPrice,0);
