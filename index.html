@@ -603,6 +603,7 @@ const DAYS_AHEAD=7;
 const TIMES=['11:30','12:00','12:30','13:00'];
 const WEEKDAYS=['日','一','二','三','四','五','六'];
 const SAUCES=['和風油醋醬','蜂蜜芥末醬','凱薩醬','不要醬'];
+const SAUCE_EN={'和風油醋醬':'Japanese Wafu Dressing','蜂蜜芥末醬':'Honey Mustard','凱薩醬':'Caesar','不要醬':'No Dressing'};
 
 let LANG=localStorage.getItem('lang')||'zh';
 const T={
@@ -712,7 +713,12 @@ const DEFAULT_ITEM_EN={
   '墨西哥脆餅（BBQ牛肉起司）':'Mexican Tortilla (BBQ Beef Cheese)',
   '墨西哥脆餅（BBQ嫩牛起司）':'Mexican Tortilla (BBQ Beef Cheese)',
   '墨西哥脆餅（泰豬起司）':'Mexican Tortilla (Thai Pork Cheese)',
+  '墨西哥脆餅（泰豬起司）(微辣)':'Mexican Tortilla (Thai Pork Cheese)',
   '墨西哥脆餅（羅勒野菇起司）':'Mexican Tortilla (Basil Wild Mushroom Cheese)',
+  '墨西哥脆餅（羅勒野菇起司）(方便素)':'Mexican Tortilla (Basil Wild Mushroom Cheese)',
+  '蔬食便當(方便素)':'Vegetarian Bento',
+  '素食便當(方便素)':'Vegetarian Bento',
+  '雙拼(義式雞腿+煙燻鴨腿)':'Double Combo (Italian Chicken + Smoked Duck Leg) Salad',
   '龍鬚菜捲':'Chayote Shoot Rolls',
 };
 function itemNameEN(item){return item.nameEn||DEFAULT_ITEM_EN[item.name]||item.name;}
@@ -1566,7 +1572,7 @@ function buildMenu(){
         const cnt=e.sauces[s]||0;
         const canAdd=sauceLeft>0;
         return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-          <span style="font-size:12px;color:${cnt>0?'#27500A':'#5F5E5A'};font-weight:${cnt>0?'600':'400'}">${s}</span>
+          <span style="font-size:12px;color:${cnt>0?'#27500A':'#5F5E5A'};font-weight:${cnt>0?'600':'400'}">${LANG==='en'?(SAUCE_EN[s]||s):s}</span>
           <div class="qty-row" onclick="event.stopPropagation()">
             <button class="qty-btn" style="${cnt>0?'border-color:#639922':''}" onclick="chgSauce('${item.id}','${s}',-1,event)">−</button>
             <span style="font-size:13px;font-weight:600;min-width:24px;text-align:center;color:${cnt>0?'#3B6D11':'#27500A'}">${cnt}</span>
@@ -1875,7 +1881,7 @@ function updateCart(){
     const details=[];
     if(e.normal>0)details.push(`<span style="color:#5F5E5A">${t('cartWithCarb')} ×${e.normal}</span>`);
     if(e.noCarb>0)details.push(`<span style="color:#3B6D11;font-weight:500">${t('cartNoCarb')} ×${e.noCarb}</span>`);
-    Object.entries(e.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>details.push(`<span style="color:#5F5E5A">${s} ×${v}</span>`));
+    Object.entries(e.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>details.push(`<span style="color:#5F5E5A">${LANG==='en'?(SAUCE_EN[s]||s):s} ×${v}</span>`));
     const priceLine=hasDiscount&&unitPrice<basePrice
       ?`<span style="color:#888780;text-decoration:line-through;font-size:12px">$${basePrice}</span>&nbsp;<span style="color:#3B6D11;font-weight:700">$${unitPrice}</span><span style="color:#888780;font-size:12px"> ×${qty}</span>`
       :`<span style="color:#888780;font-size:12px">$${basePrice} ×${qty}</span>`;
@@ -2043,7 +2049,7 @@ async function submitOrder(){
       let dl=[];
       if(i.normal>0)dl.push(`${t('cartWithCarb')}×${i.normal}`);
       if(i.noCarb>0)dl.push(`<span style="color:#3B6D11">${t('cartNoCarb')}×${i.noCarb}</span>`);
-      Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>dl.push(`${s}×${v}`));
+      Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>dl.push(`${LANG==='en'?(SAUCE_EN[s]||s):s}×${v}`));
       const iMenuItem=MENU.find(m=>m.id===i.id);
       const iDisplayName=iMenuItem&&LANG==='en'?itemNameEN(iMenuItem):i.name;
       return `${iDisplayName}<br><small style="color:#5F5E5A">${dl.join(LANG==='en'?', ':'、')}</small>`;
