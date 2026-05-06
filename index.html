@@ -1526,9 +1526,11 @@ function buildMenu(){
   const dailyPool=tacoSetting2?TACO_IDS.filter(id=>tacoSetting2.includes(id)):TACO_IDS;
   const dailyRestricted=dailyPool.length<TACO_IDS.length;
   const tacoNoticeText=selectedTacos.length>=3
-    ?'🌮 已選 3 種脆餅口味，如需更換請先減少數量'
+    ?LANG==='en'?'🌮 3 flavors selected — remove one to swap':'🌮 已選 3 種脆餅口味，如需更換請先減少數量'
     :dailyRestricted
-      ?`🌮 今日供應口味：${dailyPool.map(id=>{const m=MENU.find(x=>x.id===id);return m?m.name.replace('墨西哥脆餅（','').replace('）',''):id;}).join('、')}`
+      ?LANG==='en'
+        ?`🌮 Today's flavors: ${dailyPool.map(id=>{const m=MENU.find(x=>x.id===id);return m?itemNameEN(m).replace('Mexican Tortilla (','').replace(')',''):id;}).join(', ')}`
+        :`🌮 今日供應口味：${dailyPool.map(id=>{const m=MENU.find(x=>x.id===id);return m?m.name.replace('墨西哥脆餅（','').replace('）',''):id;}).join('、')}`
       :'';
 
   const TYPE_META={
@@ -1587,9 +1589,9 @@ function buildMenu(){
     }
 
     const lockedBadge=lockedReason==='daily'
-      ?`<span style="font-size:11px;color:#888780;background:#E0DFD9;padding:3px 8px;border-radius:4px;font-weight:500">今日不供應</span>`
+      ?`<span style="font-size:11px;color:#888780;background:#E0DFD9;padding:3px 8px;border-radius:4px;font-weight:500">${LANG==='en'?'Not available today':'今日不供應'}</span>`
       :lockedReason==='personal'
-      ?`<span style="font-size:11px;color:#BA7517;background:#FAEEDA;padding:3px 8px;border-radius:4px;font-weight:500">已選 3 種</span>`
+      ?`<span style="font-size:11px;color:#BA7517;background:#FAEEDA;padding:3px 8px;border-radius:4px;font-weight:500">${LANG==='en'?'3 flavors selected':'已選 3 種'}</span>`
       :'';
     d.innerHTML=isLocked?`
       <div class="menu-card-row">
