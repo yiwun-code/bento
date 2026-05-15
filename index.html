@@ -176,7 +176,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
         <div class="divider"></div>
         <div class="form-group">
           <label data-i18n="labelNote">其他備註</label>
-          <textarea id="f-note" data-i18n-placeholder="placeholderNote" placeholder="選填（例如：其他特殊需求）"></textarea>
+          <textarea id="f-note" data-i18n-placeholder="placeholderNote" placeholder="選填（例如：其他特殊需求）" maxlength="500"></textarea>
         </div>
         <div class="form-group">
           <label><span data-i18n="labelPayment">付款方式</span> <span style="color:#A32D2D" data-i18n="required">*（必填）</span></label>
@@ -1154,8 +1154,8 @@ function menuItemCardHTML(item,i){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px">
           <span class="drag-handle" title="拖曳排序">⠿</span>
-          <span style="font-size:13px;font-weight:600;color:#2C2C2A">${item.name}</span>
-          ${tags.map(tg=>`<span style="font-size:11px;background:${tg==='微辣'?'#FDECEA':'#EAF3DE'};color:${tg==='微辣'?'#A32D2D':'#3B6D11'};padding:1px 6px;border-radius:4px">${tg}</span>`).join('')}
+          <span style="font-size:13px;font-weight:600;color:#2C2C2A">${escapeHtml(item.name)}</span>
+          ${tags.map(tg=>`<span style="font-size:11px;background:${tg==='微辣'?'#FDECEA':'#EAF3DE'};color:${tg==='微辣'?'#A32D2D':'#3B6D11'};padding:1px 6px;border-radius:4px">${escapeHtml(tg)}</span>`).join('')}
         </div>
         <div style="display:flex;gap:6px">
           <button onclick="saveMenuItem(${i})" style="padding:4px 10px;border-radius:6px;border:none;background:#3B6D11;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">儲存修改</button>
@@ -1472,7 +1472,7 @@ function renderTacoSettings(){
     const isOn=saved?saved.includes(id):true;
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:6px">
       <input type="checkbox" id="taco-ck-${id}" ${isOn?'checked':''} onchange="onTacoChange()" style="width:18px;height:18px;cursor:pointer;accent-color:#3B6D11">
-      <label for="taco-ck-${id}" style="font-size:14px;font-weight:500;color:#2C2C2A;cursor:pointer;flex:1">${item.name.replace('墨西哥脆餅（','').replace('）','')}</label>
+      <label for="taco-ck-${id}" style="font-size:14px;font-weight:500;color:#2C2C2A;cursor:pointer;flex:1">${escapeHtml(item.name.replace('墨西哥脆餅（','').replace('）',''))}</label>
     </div>`;
   }).join('');
 }
@@ -1596,7 +1596,7 @@ function buildMenu(){
     d.innerHTML=isLocked?`
       <div class="menu-card-row">
         <div>
-          <div class="m-name" style="color:#888780">${item.name}</div>
+          <div class="m-name" style="color:#888780">${escapeHtml(item.name)}</div>
           <div class="m-price" style="color:#B4B2A9">$${item.price}</div>
         </div>
         ${lockedBadge}
@@ -2748,10 +2748,10 @@ function renderOrderCard(o){
     <div class="oc-meta">📍 ${escapeHtml(o.location||'未填')}｜💳 ${o.payMethod==='linepay'?'LINE Pay':o.payMethod==='transfer'?'銀行匯款':'現場付款'}</div>
     ${(()=>{const n=parseOrderNote(o.note);const hasNote=!!(n.text||n.addr);
     const items=`<div class="oc-items"${hasNote?' style="margin-bottom:0"':''}>${(o.items||[]).map(i=>{
-      let parts=[`<strong>${i.name}</strong> ×${i.qty}`];
+      let parts=[`<strong>${escapeHtml(i.name)}</strong> ×${i.qty}`];
       if(i.normal>0)parts.push(`要澱粉×${i.normal}`);
       if(i.noCarb>0)parts.push(`<span style="color:#3B6D11;font-weight:600">不要澱粉×${i.noCarb}</span>`);
-      Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>parts.push(`${s}×${v}`));
+      Object.entries(i.sauces||{}).filter(([,v])=>v>0).forEach(([s,v])=>parts.push(`${escapeHtml(s)}×${v}`));
       if(i.unitPrice&&i.unitPrice<i.origPrice)parts.push(`<span style="color:#3B6D11">$${i.unitPrice}/個</span>`);
       return parts.join(' · ');
     }).join('<br>')}</div>`;
@@ -2917,7 +2917,7 @@ function renderEditItems(o){
       </div>`:'';
     return `<div style="padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.06)">
       <div style="display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:13px;color:#2C2C2A;flex:1">${item.name}<span style="font-size:12px;color:#639922;margin-left:6px">$${item.price}</span></span>
+        <span style="font-size:13px;color:#2C2C2A;flex:1">${escapeHtml(item.name)}<span style="font-size:12px;color:#639922;margin-left:6px">$${item.price}</span></span>
         <div style="display:flex;align-items:center;gap:4px">
           <button onclick="editItemQty('${item.id}',${item.price},-1)" style="width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font-size:16px;font-weight:300">−</button>
           <span id="eqty-${item.id}" style="font-size:14px;font-weight:600;min-width:20px;text-align:center;color:#27500A">${qty||0}</span>
