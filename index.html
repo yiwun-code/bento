@@ -793,6 +793,8 @@ async function init(){
   MENU=getMenu();
   applyI18n();
   buildMenu();buildDates();buildTimes();buildLocations();updateSubmitBtn();
+  // 自動帶入上次的姓名與電話
+  try{const u=JSON.parse(localStorage.getItem('bento_user')||'{}');if(u.name)document.getElementById('f-name').value=u.name;if(u.phone)document.getElementById('f-phone').value=u.phone;updateSubmitBtn();}catch(e){}
 
   // 載入 boss email（不放在 code 裡），不阻塞 UI
   try{
@@ -2005,6 +2007,7 @@ async function submitOrder(){
   const name=document.getElementById('f-name').value.trim();
   const phone=document.getElementById('f-phone').value.trim();
   if(!Object.keys(cart).length||!selectedDate||!selectedTime||!selectedLocation||!name||!isValidPhone(phone))return;
+  localStorage.setItem('bento_user',JSON.stringify({name,phone}));
   for(const id of Object.keys(cart)){
     const item=MENU.find(m=>m.id===id);
     if(isSauced(item)){
