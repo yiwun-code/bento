@@ -2495,7 +2495,7 @@ async function doLogin(){
   errEl.textContent='登入中…';
 
   // 帳號對應真實 email
-  const emailMap={'boss':'a0903617197@gmail.com','helper':'helper@shengen.farm'};
+  const emailMap={'boss':'a0903617197@gmail.com','helper':'helper@farm.com'};
   const email=emailMap[username]||`${username}@shengen.farm`;
   const {data,error}=await sbTimeout(_sb.auth.signInWithPassword({email,password:pw}),8000).catch(e=>({data:null,error:e}));
   if(error||!data.user){
