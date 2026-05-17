@@ -870,7 +870,10 @@ function buildLocations(){
     const hasEnName=loc.areaEn||loc.nameEn||locEnFb.areaEn||locEnFb.nameEn;
     const d=document.createElement('div');
     d.className='loc-btn';
-    d.innerHTML=`<div class="loc-dot"></div><div><div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(displayArea)}　<span>${escapeHtml(displayName)}</span></div>${LANG==='en'&&hasEnName?`<div style="font-size:11px;color:#888780;margin-top:1px">${escapeHtml(loc.area)} ${escapeHtml(loc.name)}</div>`:''}</div>`;
+    const nameHTML=LANG==='en'
+      ?`<div style="font-size:11px;color:#888780;font-weight:500;margin-bottom:1px">${escapeHtml(displayArea)}</div><div style="font-size:13px;font-weight:600;color:#2C2C2A;line-height:1.35">${escapeHtml(displayName)}</div>${hasEnName?`<div style="font-size:11px;color:#b0afa9;margin-top:1px">${escapeHtml(loc.area)} ${escapeHtml(loc.name)}</div>`:''}`
+      :`<div style="font-size:14px;font-weight:600;color:#2C2C2A">${escapeHtml(displayArea)}　<span>${escapeHtml(displayName)}</span></div>`;
+    d.innerHTML=`<div class="loc-dot"></div><div style="flex:1;min-width:0">${nameHTML}</div>`;
     d.onclick=()=>selectLocation(label,d);
     g.appendChild(d);
   });
