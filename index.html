@@ -133,10 +133,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
 <div class="float-nav">
   <button class="float-btn" id="nav-to-admin" onclick="goAdmin()">後台管理</button>
-  <div class="lang-pill">
-    <button class="lang-pill-btn" onclick="setLang('zh')" id="lang-zh">中</button>
-    <button class="lang-pill-btn" onclick="setLang('en')" id="lang-en">EN</button>
-  </div>
+  <button class="float-btn lang-pill" id="lang-toggle" onclick="setLang(LANG==='zh'?'en':'zh')"></button>
 </div>
 
 <!-- FRONT -->
@@ -731,8 +728,8 @@ function applyI18n(){
     const key=el.dataset.i18nPlaceholder;
     if(T[key])el.placeholder=t(key);
   });
-  document.getElementById('lang-zh')?.classList.toggle('active',LANG==='zh');
-  document.getElementById('lang-en')?.classList.toggle('active',LANG==='en');
+  const lt=document.getElementById('lang-toggle');
+  if(lt)lt.textContent=LANG==='zh'?'中 / EN':'EN / 中';
   document.documentElement.lang=LANG==='en'?'en':'zh-TW';
 }
 function setLang(lang){
@@ -2170,7 +2167,7 @@ async function goAdmin(){
   document.getElementById('page-front').classList.remove('active');
   document.getElementById('page-admin').classList.add('active');
   document.getElementById('nav-to-admin').classList.add('hide');
-  document.querySelector('.lang-pill').style.display='none';
+  document.getElementById('lang-toggle').style.display='none';
   // 檢查是否已有登入 session
   const {data:{session}}=await sbTimeout(_sb.auth.getSession(),8000).catch(()=>({data:{session:null}}));
   if(session){
@@ -2190,7 +2187,7 @@ function goFront(){
   document.getElementById('page-admin').classList.remove('active');
   document.getElementById('page-front').classList.add('active');
   document.getElementById('nav-to-admin').classList.remove('hide');
-  document.querySelector('.lang-pill').style.display='';
+  document.getElementById('lang-toggle').style.display='';
 }
 let currentTab='orders';
 let revPeriod='day';
