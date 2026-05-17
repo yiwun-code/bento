@@ -133,7 +133,10 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 
 <div class="float-nav">
   <button class="float-btn" id="nav-to-admin" onclick="goAdmin()">後台管理</button>
-  <button class="float-btn lang-pill" id="lang-toggle" onclick="setLang(LANG==='zh'?'en':'zh')"></button>
+  <div class="lang-pill" id="lang-toggle" onclick="setLang(LANG==='zh'?'en':'zh')" style="cursor:pointer">
+    <span class="lang-pill-btn" id="lang-zh">中</span>
+    <span class="lang-pill-btn" id="lang-en">EN</span>
+  </div>
 </div>
 
 <!-- FRONT -->
@@ -728,8 +731,8 @@ function applyI18n(){
     const key=el.dataset.i18nPlaceholder;
     if(T[key])el.placeholder=t(key);
   });
-  const lt=document.getElementById('lang-toggle');
-  if(lt)lt.textContent=LANG==='zh'?'中 / EN':'EN / 中';
+  document.getElementById('lang-zh')?.classList.toggle('active',LANG==='zh');
+  document.getElementById('lang-en')?.classList.toggle('active',LANG==='en');
   document.documentElement.lang=LANG==='en'?'en':'zh-TW';
 }
 function setLang(lang){
