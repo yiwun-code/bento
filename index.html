@@ -114,7 +114,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .btn-done{background:#3B6D11;color:#fff}
 .btn-restore{background:#F5F4F0;color:#5F5E5A;border:1px solid rgba(0,0,0,0.12)}
 .empty{text-align:center;padding:48px 16px;color:#888780;font-size:14px}
-.float-nav{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px;align-items:center}
+.float-nav{position:fixed;top:12px;right:12px;z-index:100;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .float-btn{background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;color:#2C2C2A;font-family:inherit}
 .float-btn.hide{display:none}
 .lang-pill{display:flex;background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:2px;gap:0}
@@ -132,17 +132,17 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 <body>
 
 <div class="float-nav">
+  <button class="float-btn" id="nav-to-admin" onclick="goAdmin()">後台管理</button>
   <div class="lang-pill">
     <button class="lang-pill-btn" onclick="setLang('zh')" id="lang-zh">中</button>
     <button class="lang-pill-btn" onclick="setLang('en')" id="lang-en">EN</button>
   </div>
-  <button class="float-btn" id="nav-to-admin" onclick="goAdmin()">後台管理</button>
 </div>
 
 <!-- FRONT -->
 <div id="page-front" class="page active">
   <header>
-    <div style="padding-right:170px">
+    <div style="padding-right:100px">
       <h1>🌱 <span data-i18n="farmName">生根有機農場</span></h1>
       <div class="sub" data-i18n="subtitle">有機餐盒預訂</div>
       <div class="sub" id="today-label"></div>
