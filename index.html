@@ -1098,6 +1098,7 @@ function getLocationPricing(){
   return data[selectedLocation]||{bentoPrice:115,saucedPrice:139,discount:false};
 }
 function itemHasCarb(item){
+  if(TACO_IDS.includes(item.id))return false; // 脆餅本身是澱粉，不提供澱粉選項
   if(item.hasCarb!==undefined)return item.hasCarb;
   return !isSauced(item);
 }
@@ -1187,7 +1188,7 @@ function menuItemCardHTML(item,i){
           <div style="display:flex;gap:12px;flex-wrap:wrap">
             <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-fv-${i}" ${tags.includes('方便素')?'checked':''} style="accent-color:#3B6D11">方便素</label>
             <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="mi-tag-sp-${i}" ${tags.includes('微辣')?'checked':''} style="accent-color:#A32D2D">微辣</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="accent-color:#3B6D11">澱粉選項</label>
+            ${!TACO_IDS.includes(item.id)?`<label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="carb-ck-${i}" ${itemHasCarb(item)?'checked':''} style="accent-color:#3B6D11">澱粉選項</label>`:''}
           </div>
         </div>
       </div>
