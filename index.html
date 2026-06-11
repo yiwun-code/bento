@@ -36,7 +36,7 @@ header .sub{font-size:12px;opacity:0.75;margin-top:1px}
 .expand-box{margin-top:10px;border-top:1px solid rgba(0,0,0,0.07);padding-top:10px;display:flex;flex-direction:column;gap:6px}
 .expand-label{font-size:11px;font-weight:700;color:#888780;letter-spacing:0.5px;margin-bottom:2px}
 .expand-row{display:flex;align-items:center;justify-content:space-between}
-.sauce-section{border-top:1px solid rgba(0,0,0,0.07);padding-top:8px;margin-top:2px}
+.sauce-section{padding-top:8px;margin-top:2px}.sauce-section.with-separator{border-top:1px solid rgba(0,0,0,0.07)}
 /* date */
 .date-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 @media(max-width:360px){.date-grid{grid-template-columns:repeat(3,1fr)}}
@@ -1588,7 +1588,7 @@ function buildMenu(){
           </div>
         </div>`;
       }).join('');
-      sauceHTML=`<div class="sauce-section" onclick="event.stopPropagation()">
+      sauceHTML=`<div class="sauce-section${itemHasCarb(item)?' with-separator':''}" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div class="expand-label">${t('sauceLabel')}</div>${indicator}
         </div>${rows}</div>`;
